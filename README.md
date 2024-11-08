@@ -8,7 +8,7 @@ StayHub-FrontEnd é a parte do cliente do projeto StayHub, desenvolvido com **-*
 
 ## Desenvolvedores Principais
 
-- **Ricardo de Paula**
+- **Ricardo Xavier**
 - **João Victor Bonilha**
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
