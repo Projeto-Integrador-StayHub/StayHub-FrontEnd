@@ -1,3 +1,16 @@
+## StayHub-FrontEnd
+
+StayHub-FrontEnd é a parte do cliente do projeto StayHub, desenvolvido com **-**, **TypeScript** e **JavaScript**. Este projeto é responsável pela interface de usuário e interação com os usuários, consumindo a API fornecida pelo StayHub-BackEnd.
+
+## Tecnologias
+
+- 
+
+## Desenvolvedores Principais
+
+- **Ricardo de Paula**
+- **João Victor Bonilha**
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
