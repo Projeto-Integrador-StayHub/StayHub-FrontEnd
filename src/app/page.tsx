@@ -23,12 +23,13 @@ export default function TelaInicial() {
   ];
 
   // Função para formatação de valor monetário em reais
-  const formatarValor = (valor) => {
+  const formatarValor = (valor: number) => {
     return valor
       .toFixed(2) // Garante duas casas decimais
       .replace('.', ',') // Substitui o ponto por vírgula
       .replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Adiciona ponto como separador de milhar
   };
+  
 
   // Função para tratar a mudança no valor
   const handlePrecoChange = (e) => {
