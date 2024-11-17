@@ -1,0 +1,14 @@
+@import "../../app/styles/variables.scss"; 
+
+#container{
+    display: flex;
+    width: 100vh;
+}
+.left{
+    width: 40%;
+    background-color:$left-color;
+}
+.right {
+    width: 60%;
+    background-color:$right-color;
+}

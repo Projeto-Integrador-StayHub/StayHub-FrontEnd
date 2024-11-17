@@ -69,7 +69,9 @@ export default function TelaInicial() {
           </div>
 
           <div className={style.anuncioProprietario}>
-            <button className={style.buttonAnucio}>Anuncie seu espaço no StayHub</button>
+          <a href="/telaAnuncio">
+            <button className={style.buttonAnucio}>Anuncie seu espaço no StayHub</button></a>
+      
             <div className={style.filtroPesquisa}>
               <div className={style.campoPesquisa} key="onde">
                 <label>Onde</label>

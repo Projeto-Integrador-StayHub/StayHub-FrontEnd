@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-
+import "../app/styles/globals.scss";
+import Link from 'next/link';
+import TelaAnuncio from "../app/telaAnuncio/page";
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -9,10 +11,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-      
-      >
-        {children}
+      <body>
+        {children} 
+        
       </body>
     </html>
   );
