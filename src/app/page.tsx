@@ -65,7 +65,7 @@ export default function TelaInicial() {
       <div id={style.containerHeader}>
         <div className={style.header}>
           <div className={style.logo}>
-            <Image src={logo} alt="logo" className={style.logo} />
+            <a href="/"><Image src={logo} alt="logo" className={style.logo} /></a>
           </div>
 
           <div className={style.anuncioProprietario}>
@@ -144,7 +144,7 @@ export default function TelaInicial() {
                         </div>
                         <div className={style.campo}>
                           <label>Telefone: </label>
-                          <input type="text" className={style.input} />
+                          <input type="type" className={style.input}/>
                         </div>
                         <div className={style.campo}>
                           <label>CPF: </label>
