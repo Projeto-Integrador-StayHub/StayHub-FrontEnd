@@ -3,6 +3,7 @@
     justify-content: center;
     padding: 20px 0;
     background-color: white;
+    width: 100%;
 }
 
 .header {
@@ -47,7 +48,8 @@
 }
 
 .menuIcon{
-    margin-bottom: 3.5px;
+    width: 24px; /* Tamanho fixo para os ícones */
+    height: 24px;
 }
 .menuInterativo {
     display: flex;
@@ -62,7 +64,7 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 12px;
-    width: 180px; 
+    width: 150px;
 }
 
 .menuItem {

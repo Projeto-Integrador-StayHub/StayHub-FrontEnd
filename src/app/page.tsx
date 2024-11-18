@@ -25,11 +25,11 @@ export default function TelaInicial() {
   const [nascimento, setNascimento] = useState("");
   const [senha, setSenha] = useState("");
 
-  const salvarHospede = async () => {
+ const salvarHospede = async () => {
     const dados = {
       nome,
       email,
-      senha,
+      senha, 
       telefone,
       nascimento,
       cpf,
@@ -105,48 +105,46 @@ export default function TelaInicial() {
   };
 
   const loginHospede = async () => {
-    const dadosLogin = { email, senha };
-  
     try {
-      const response = await fetch("https://localhost:7274/api/Hospede/ListarHospedes", {
-        method: "GET", // Alterado de POST para GET
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // Não é necessário o corpo na requisição GET
-      });
-  
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Login realizado com sucesso", result);
-        const user = result.find((hospede: any) => hospede.email === email && hospede.senha === senha);
-        
-        if (user) {
-          setIsLogged(true);
-          setErrorMessage(null);
-          setActiveCard(null);
+        const response = await fetch("https://localhost:7274/api/Hospede/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email,
+                password: senha,
+                twoFactorCode: null,
+                twoFactorRecoveryCode: null,
+            }),
+        });
+
+        if (response.ok) {
+            const dadosUsuario = await response.json();
+            setIsLogged(true);
+            setErrorMessage("Login realizado com sucesso!");
+            setActiveCard(null);
+            console.log("Usuário autenticado:", dadosUsuario);
         } else {
-          setErrorMessage("E-mail ou senha incorretos.");
+            const error = await response.json();
+            setErrorMessage(error.message || "Erro ao realizar login");
         }
-
-        // Aqui você pode salvar o token ou as informações do usuário no estado ou localStorage
-      } else {
-        console.error("Erro ao fazer login", response.statusText);
-        // alert("E-mail ou senha incorretos");
-        setErrorMessage("Erro ao verificar credenciais.");
-      }
     } catch (error) {
-      console.error("Erro na requisição:", error);
-      // alert("Erro ao tentar realizar login");  
-      setErrorMessage("Erro na conexão. Tente novamente.");
+        console.error("Erro na requisição:", error);
+        setErrorMessage("Não foi possível conectar ao servidor.");
     }
-  };
+};
 
-  const logout = () => {
+
+const logout = () => {
     setIsLogged(false);
     setIsOpen(false);
-  };
+    setEmail("");
+    setSenha("");
+    setErrorMessage(null);
+};
 
+  
   return (
     <main>
       {/* Container Header */}
@@ -201,63 +199,79 @@ export default function TelaInicial() {
                   )}
                 </div>
               </div>
-            )}
-              {/* {isOpen && isSign && (
-              <div className={style.menuInterativo}>
-                  <div className={style.menu}>
-                    <div className={style.menuItem}>Meu Perfil</div>
-                    <div className={style.menuItem}>Minhas Reservas</div>
-                    <div className={style.menuItem}>Sair</div>
-                  </div>
-              </div>
-
-              )} */}
-
+            )}            
             {activeCard && (
               <>
                 <div className={style.overlay} onClick={handleCardClose}></div>
                 <div className={style.card}>
                   <button className={style.closeButton} onClick={handleCardClose}>✕</button>
-                  {activeCard && (
-              <>
-                <div className={style.overlay} onClick={() => setActiveCard(null)}></div>
-                <div className={style.card}>
-                  <button className={style.closeButton} onClick={() => setActiveCard(null)}>✕</button>
-                  {errorMessage && <p className={style.errorMessage}>{errorMessage}</p>}
                   {activeCard === "login" ? (
                     <>
                       <h2>Entrar</h2>
+                      <h3>Bem-vindo ao StayHub</h3>
                       <div className={style.cardBody}>
-                        <label>E-mail:</label>
-                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <label>Senha:</label>
-                        <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-                        <button onClick={loginHospede}>Entrar</button>
+                        <div className={style.campo}>
+                          <label>E-mail: </label>
+                          <input
+                            type="email"
+                            className={style.input}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+                        </div>
+                        <div className={style.campo}>
+                          <label>Senha: </label>
+                          <input
+                            type="password"
+                            className={style.input}
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                          />
+                        </div>
+                        <button className={style.mainButton} onClick={loginHospede}>Entrar</button>
+                      </div>
+                      <div className={style.divider}>ou</div>
+                      <div className={style.linkEntrarCadastro}>
+                        Ainda não possui conta? <span onClick={() => setActiveCard("cadastro")} className={style.link}>Cadastre-se</span>
                       </div>
                     </>
                   ) : (
                     <>
                       <h2>Cadastre-se</h2>
+                      <h3>Crie sua conta no StayHub</h3>
                       <div className={style.cardBody}>
-                        <label>Nome Completo:</label>
-                        <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
-                        <label>E-mail:</label>
-                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <label>Telefone:</label>
-                        <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
-                        <label>CPF:</label>
-                        <input type="text" value={cpf} onChange={(e) => setCpf(e.target.value)} />
-                        <label>Data de Nascimento:</label>
-                        <input type="date" value={nascimento} onChange={(e) => setNascimento(e.target.value)} />
-                        <label>Senha:</label>
-                        <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-                        <button onClick={salvarHospede}>Cadastrar</button>
+                        <div className={style.campo}>
+                          <label>Nome Completo: </label>
+                          <input type="text" className={style.input} value={nome} onChange={(e) => setNome(e.target.value)} />
+                        </div>
+                        <div className={style.campo}>
+                          <label>E-mail: </label>
+                          <input type="email" className={style.input} value={email} onChange={(e) => setEmail(e.target.value)} />
+                        </div>
+                        <div className={style.campo}>
+                          <label>Telefone: </label>
+                          <input type="text" className={style.input} value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+                        </div>
+                        <div className={style.campo}>
+                          <label>CPF: </label>
+                          <input type="text" className={style.input} value={cpf} onChange={(e) => setCpf(e.target.value)} />
+                        </div>
+                        <div className={style.campo}>
+                          <label>Data de Nascimento: </label>
+                          <input type="date" className={style.input} value={nascimento} onChange={(e) => setNascimento(e.target.value)} />
+                        </div>
+                        <div className={style.campo}>
+                          <label>Senha: </label>
+                          <input type="password" className={style.input} value={senha} onChange={(e) => setSenha(e.target.value)} />
+                        </div>
+                      </div>
+                      <button className={style.mainButton} onClick={salvarHospede}>Cadastrar</button>
+                      <div className={style.divider}>ou</div>
+                      <div className={style.linkEntrarCadastro}>
+                        Já tem uma conta? <span onClick={() => setActiveCard("login")} className={style.link}>Entrar</span>
                       </div>
                     </>
                   )}
-                </div>
-              </>
-            )}
                 </div>
               </>
             )}

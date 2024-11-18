@@ -7,7 +7,7 @@ import { useState } from "react";
 export default function TelaAnuncio() {
     const [form, setIsForm] = useState(false);
     const [isCadastro, setIsCadastro] = useState(false);
-
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     // Estados para os campos de formulário
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
@@ -52,33 +52,32 @@ export default function TelaAnuncio() {
     };
 
     const loginDono = async () => {
-        const dadosLogin = { email, senha };
-    
         try {
-            // Criando a query string com os parâmetros
-            const url = new URL("https://localhost:7274/api/DonoHotel/ListarDonos");
-            url.searchParams.append("email", dadosLogin.email);
-            url.searchParams.append("senha", dadosLogin.senha);
-    
-            // Fazendo a requisição GET
-            const response = await fetch(url, {
-                method: "GET", // Método GET
+            const response = await fetch("https://localhost:7274/api/DonoHotel/login", {
+                method: "POST",
                 headers: {
-                    "Content-Type": "application/json", // Isso pode ser removido, já que não há corpo
+                    "Content-Type": "application/json",
                 },
+                body: JSON.stringify({
+                    email,
+                    password: senha,
+                    twoFactorCode: null,
+                    twoFactorRecoveryCode: null,
+                }),
             });
     
             if (response.ok) {
-                const result = await response.json();
-                console.log("Login realizado com sucesso", result);
-                // Aqui você pode salvar o token ou as informações do usuário no estado ou localStorage
+                const dadosDono = await response.json();
+              
+                setErrorMessage("Login realizado com sucesso!");
+                console.log("Usuário autenticado:", dadosDono);
             } else {
-                console.error("Erro ao fazer login", response.statusText);
-                alert("E-mail ou senha incorretos");
+                const error = await response.json();
+                setErrorMessage(error.message || "Erro ao realizar login");
             }
         } catch (error) {
             console.error("Erro na requisição:", error);
-            alert("Erro ao tentar realizar login");
+            setErrorMessage("Não foi possível conectar ao servidor.");
         }
     };
    
