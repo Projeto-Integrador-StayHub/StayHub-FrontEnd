@@ -16,6 +16,46 @@ export default function TelaInicial() {
   const [classificacaoMinima, setClassificacaoMinima] = useState(0);
   const [hoteisFiltrados, setHoteisFiltrados] = useState<any[]>([]);
 
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [nascimento, setNascimento] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const salvarHospede = async () => {
+    const dados = {
+      nome,
+      email,
+      senha,
+      telefone,
+      nascimento,
+      cpf,
+      endereco: "Endereço Exemplo" // Endereço pode ser uma variável ou campo adicional
+    };
+
+    console.log("Dados enviados para a API:", dados); // Depuração para verificar os dados
+
+    try {
+      const response = await fetch("https://localhost:7274/api/Hospede/CriarHospede", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dados)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Hospede salvo com sucesso:", result);
+      } else {
+        console.error("Erro ao salvar hospede:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+    }
+  };
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -36,15 +76,15 @@ export default function TelaInicial() {
 
   useEffect(() => {
     const filtrarHoteis = hoteis.filter(hotel => {
-      const precoValido = preco === 0 || hotel.preco <= preco; 
-      const tipoQuartoValido = tipoQuarto === "single" || hotel.tipo === tipoQuarto; 
-      const camasValidas = hotel.camas >= qtdCamas; 
-      const classificacaoValida = hotel.classificacao >= classificacaoMinima; 
-  
+      const precoValido = preco === 0 || hotel.preco <= preco;
+      const tipoQuartoValido = tipoQuarto === "single" || hotel.tipo === tipoQuarto;
+      const camasValidas = hotel.camas >= qtdCamas;
+      const classificacaoValida = hotel.classificacao >= classificacaoMinima;
+
 
       return precoValido && tipoQuartoValido && camasValidas && classificacaoValida;
     });
-  
+
 
     setHoteisFiltrados(filtrarHoteis);
   }, [preco, tipoQuarto, qtdCamas, classificacaoMinima]);
@@ -59,6 +99,32 @@ export default function TelaInicial() {
     setPreco(parseFloat(valor) || 0); // Converte para número diretamente
   };
 
+  const loginHospede = async () => {
+    const dadosLogin = { email, senha };
+  
+    try {
+      const response = await fetch("https://localhost:7274/api/Hospede/ListarHospedes", {
+        method: "GET", // Alterado de POST para GET
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Não é necessário o corpo na requisição GET
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Login realizado com sucesso", result);
+        // Aqui você pode salvar o token ou as informações do usuário no estado ou localStorage
+      } else {
+        console.error("Erro ao fazer login", response.statusText);
+        alert("E-mail ou senha incorretos");
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Erro ao tentar realizar login");
+    }
+  };
+  
   return (
     <main>
       {/* Container Header */}
@@ -69,9 +135,9 @@ export default function TelaInicial() {
           </div>
 
           <div className={style.anuncioProprietario}>
-          <a href="/telaAnuncio">
-            <button className={style.buttonAnucio}>Anuncie seu espaço no StayHub</button></a>
-      
+            <a href="/telaAnuncio">
+              <button className={style.buttonAnucio}>Anuncie seu espaço no StayHub</button></a>
+
             <div className={style.filtroPesquisa}>
               <div className={style.campoPesquisa} key="onde">
                 <label>Onde</label>
@@ -116,14 +182,24 @@ export default function TelaInicial() {
                       <div className={style.cardBody}>
                         <div className={style.campo}>
                           <label>E-mail: </label>
-                          <input type="email" className={style.input} />
+                          <input
+                            type="email"
+                            className={style.input}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
                         </div>
                         <div className={style.campo}>
                           <label>Senha: </label>
-                          <input type="password" className={style.input} />
+                          <input
+                            type="password"
+                            className={style.input}
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                          />
                         </div>
+                        <button onClick={loginHospede}>Entrar</button>
                       </div>
-                      <button className={style.mainButton}>Entrar</button>
                       <div className={style.divider}>ou</div>
                       <div className={style.linkEntrarCadastro}>
                         Ainda não possui conta? <span onClick={() => setActiveCard("cadastro")} className={style.link}>Cadastre-se</span>
@@ -131,35 +207,35 @@ export default function TelaInicial() {
                     </>
                   ) : (
                     <>
-                      <h2>Cadastre-se </h2>
+                      <h2>Cadastre-se</h2>
                       <h3>Crie sua conta no StayHub</h3>
                       <div className={style.cardBody}>
                         <div className={style.campo}>
                           <label>Nome Completo: </label>
-                          <input type="text" className={style.input} />
+                          <input type="text" className={style.input} value={nome} onChange={(e) => setNome(e.target.value)} />
                         </div>
                         <div className={style.campo}>
                           <label>E-mail: </label>
-                          <input type="email" className={style.input} />
+                          <input type="email" className={style.input} value={email} onChange={(e) => setEmail(e.target.value)} />
                         </div>
                         <div className={style.campo}>
                           <label>Telefone: </label>
-                          <input type="type" className={style.input}/>
+                          <input type="text" className={style.input} value={telefone} onChange={(e) => setTelefone(e.target.value)} />
                         </div>
                         <div className={style.campo}>
                           <label>CPF: </label>
-                          <input type="text" className={style.input} />
+                          <input type="text" className={style.input} value={cpf} onChange={(e) => setCpf(e.target.value)} />
                         </div>
                         <div className={style.campo}>
                           <label>Data de Nascimento: </label>
-                          <input type="date" className={style.input} />
+                          <input type="date" className={style.input} value={nascimento} onChange={(e) => setNascimento(e.target.value)} />
                         </div>
                         <div className={style.campo}>
                           <label>Senha: </label>
-                          <input type="password" className={style.input} />
+                          <input type="password" className={style.input} value={senha} onChange={(e) => setSenha(e.target.value)} />
                         </div>
                       </div>
-                      <button className={style.mainButton}>Cadastrar</button>
+                      <button className={style.mainButton} onClick={salvarHospede}>Cadastrar</button>
                       <div className={style.divider}>ou</div>
                       <div className={style.linkEntrarCadastro}>
                         Já tem uma conta? <span onClick={() => setActiveCard("login")} className={style.link}>Entrar</span>
