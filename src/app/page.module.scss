@@ -1,17 +1,16 @@
 #containerHeader {
     display: flex;
     justify-content: center;
-    border-bottom: 1px solid #eaeaea;
     padding: 20px 0;
     background-color: white;
-    height: 150px;
+    width: 100%;
 }
 
 .header {
     width: 80%;
-    align-items: flex-start;
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     margin-top: 10px;
 }
 
@@ -22,7 +21,7 @@
 
 .anuncioProprietario {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: flex-end;
     margin-right: 20rem;
 }
@@ -34,6 +33,7 @@
     cursor: pointer;
     font-weight: bold;
     margin-bottom: 35px;
+    transition: background-color 0.3s ease;
 }
 
 .buttonAnucio:hover {
@@ -48,7 +48,8 @@
 }
 
 .menuIcon{
-    margin-bottom: 3.5px;
+    width: 24px; /* Tamanho fixo para os ícones */
+    height: 24px;
 }
 .menuInterativo {
     display: flex;
@@ -63,7 +64,7 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 12px;
-    width: 180px; 
+    width: 150px;
 }
 
 .menuItem {
@@ -77,6 +78,7 @@
     border-radius: 4px;
 }
 
+/* Filtro de pesquisa */
 .filtroPesquisa {
     display: flex;
     align-items: center;
@@ -104,6 +106,7 @@
     color: #333;
 }
 
+/* Botão de busca */
 .botaoBusca {
     background-color: #3a8fc0;
     border: none;
@@ -114,8 +117,116 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin-left: 10px;
     transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+.botaoBusca:hover {
+    background-color: #2e6fa8;
+}
+
+/* Corpo do container */
+.containerBody {
+    display: flex;
+    background-color: #f5f5f5;
+    flex-grow: 1; 
+    overflow: hidden; 
+    border-radius: 20px;
+    width: 100%;
+    height: 75vh;
+}
+
+/* Filtros */
+.filtros {
+    width: 20%;
+    height: fit-content; 
+    padding: 20px;
+    margin-left: 10px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 20px;
+}
+
+.containerTipoQuarto,
+.containerPreco,
+.containerQtdCamas,
+.containerClassificacao {
+    padding: 8px;
+}
+
+/* Estilização de todos os inputs de filtro */
+.filtros input[type="text"],
+.filtros input[type="number"],
+.filtros input[type="range"],
+.filtros select {
+    cursor: pointer;
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.filtros input:focus,
+.filtros select:focus {
+    border-color: #3a8fc0;
+    outline: none;
+    box-shadow: 0 0 8px rgba(58, 143, 192, 0.3);
+}
+
+.filtros label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Estilo para itens de filtro com linha divisória */
+.filtros .filtro-item {
+    padding-bottom: 25px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Área de resultados com scroll interno */
+.resultados {
+
+    width: 75%;
+    margin-left: 5%;
+    flex-grow: 1; /* Faz com que os resultados ocupem o restante do espaço */
+    max-height: 600px; /* Limita a altura máxima para scroll interno */
+    overflow-y: auto; /* Ativa o scroll interno */
+    padding-right: 10px;
+}
+
+/* Barra de rolagem personalizada para a área de resultados */
+.resultados::-webkit-scrollbar {
+    width: 8px;
+}
+
+.resultados::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.resultados::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+}
+
+/* Cartão de hotel */
+.cardHotel {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card {
@@ -131,7 +242,10 @@
     z-index: 1000;
     text-align: center;
     font-family: Arial, sans-serif;
-    margin-top: 30px;
+    margin-top: 30px;    
+    font-family: Arial, sans-serif;
+    border-radius: 15px; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
   }
   
 .closeButton {
@@ -145,10 +259,12 @@
   }
 
 .input{
-    border-radius:5px;
-    margin-top: 10px;
-    width: 70%;
-    
+    width: 80%;
+    padding: 10px 15px;
+    border: 1px solid #ddd; 
+    border-radius: 8px;
+    font-size: 14px;
+    color: #555;
 }
   
 .mainButton {
