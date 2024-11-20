@@ -179,8 +179,8 @@ const logout = () => {
 
           <div className={style.perfilUsuario}>
             <button className={style.perfilButton} onClick={toggleMenu}>
-              <Image src={menu} alt="menu" width={30} height={25} className={style.menuIcon} />
               <Image src={perfilLogo} alt="perfil" width={40} height={35} className={style.perfil} />
+              <Image src={menu} alt="menu" width={30} height={25} className={style.menuIcon} />
             </button>
             {isOpen && (
               <div className={style.menuInterativo}>
