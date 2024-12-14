@@ -4,6 +4,7 @@ import "./globals.css";
 import "../app/styles/globals.scss";
 import Link from 'next/link';
 import TelaAnuncio from "../app/telaAnuncio/page";
+import TelaPerfil from "../app/telaPerfil/page";
 export default function RootLayout({
   children,
 }: Readonly<{
