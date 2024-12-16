@@ -12,12 +12,14 @@ export default function TelaInicial() {
   const [activeCard, setActiveCard] = useState<"login" | "cadastro" | null>(null);
   const [tipoQuarto, setTipoQuarto] = useState("single");
   const [preco, setPreco] = useState(0);
+  const [quarto, setQuarto] = useState("");
   const [qtdCamas, setQtdCamas] = useState(1);
   const [classificacaoMinima, setClassificacaoMinima] = useState(0);
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
   const [hoteisFiltrados, setHoteisFiltrados] = useState<any[]>([]);
   const [isLogged, setIsLogged] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -25,11 +27,11 @@ export default function TelaInicial() {
   const [nascimento, setNascimento] = useState("");
   const [senha, setSenha] = useState("");
 
- const salvarHospede = async () => {
+  const salvarHospede = async () => {
     const dados = {
       nome,
       email,
-      senha, 
+      senha,
       telefone,
       nascimento,
       cpf,
@@ -72,28 +74,33 @@ export default function TelaInicial() {
 
   const handleCardClose = () => setActiveCard(null);
 
-  // Simulando dados de hotéis para o exemplo
-  const hoteis = [
-    { id: 1, nome: "Hotel Exemplo 1", localizacao: "São Paulo", preco: 200, tipo: "single", camas: 1, classificacao: 4 },
-    { id: 2, nome: "Hotel Exemplo 2", localizacao: "Rio de Janeiro", preco: 300, tipo: "double", camas: 2, classificacao: 5 },
-    { id: 3, nome: "Hotel Exemplo 3", localizacao: "Curitiba", preco: 150, tipo: "suite", camas: 1, classificacao: 3 },
-  ];
+  const buscarHoteis = async () => {
+    console.log("Chamando API para listar todos os quartos disponíveis.");
+    try {
+      const response = await fetch("https://localhost:7274/api/Quarto/ListarQuartos", {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Dados recebidos:", data);
+        // Aqui, você deve acessar a propriedade "dados" da resposta
+        setHoteisFiltrados(data.dados); // Atualizando o estado com a lista de quartos
+      } else {
+        console.error("Erro na resposta da API:", response.statusText);
+        setErrorMessage("Erro ao buscar hotéis.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      setErrorMessage("Erro ao buscar hotéis.");
+    }
+  };
+
+
 
   useEffect(() => {
-    const filtrarHoteis = hoteis.filter(hotel => {
-      const precoValido = preco === 0 || hotel.preco <= preco;
-      const tipoQuartoValido = tipoQuarto === "single" || hotel.tipo === tipoQuarto;
-      const camasValidas = hotel.camas >= qtdCamas;
-      const classificacaoValida = hotel.classificacao >= classificacaoMinima;
-
-
-      return precoValido && tipoQuartoValido && camasValidas && classificacaoValida;
-    });
-
-
-    setHoteisFiltrados(filtrarHoteis);
-  }, [preco, tipoQuarto, qtdCamas, classificacaoMinima]);
-
+    buscarHoteis();
+  }, []);
 
   const formatarValor = (valor: number) => {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -106,45 +113,45 @@ export default function TelaInicial() {
 
   const loginHospede = async () => {
     try {
-        const response = await fetch("https://localhost:7274/api/Hospede/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password: senha,
-                twoFactorCode: null,
-                twoFactorRecoveryCode: null,
-            }),
-        });
+      const response = await fetch("https://localhost:7274/api/Hospede/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password: senha,
+          twoFactorCode: null,
+          twoFactorRecoveryCode: null,
+        }),
+      });
 
-        if (response.ok) {
-            const dadosUsuario = await response.json();
-            setIsLogged(true);
-            setErrorMessage("Login realizado com sucesso!");
-            setActiveCard(null);
-            console.log("Usuário autenticado:", dadosUsuario);
-        } else {
-            const error = await response.json();
-            setErrorMessage(error.message || "Erro ao realizar login");
-        }
+      if (response.ok) {
+        const dadosUsuario = await response.json();
+        setIsLogged(true);
+        setErrorMessage("Login realizado com sucesso!");
+        setActiveCard(null);
+        console.log("Usuário autenticado:", dadosUsuario);
+      } else {
+        const error = await response.json();
+        setErrorMessage(error.message || "Erro ao realizar login");
+      }
     } catch (error) {
-        console.error("Erro na requisição:", error);
-        setErrorMessage("Não foi possível conectar ao servidor.");
+      console.error("Erro na requisição:", error);
+      setErrorMessage("Não foi possível conectar ao servidor.");
     }
-};
+  };
 
 
-const logout = () => {
+  const logout = () => {
     setIsLogged(false);
     setIsOpen(false);
     setEmail("");
     setSenha("");
     setErrorMessage(null);
-};
+  };
 
-  
+
   return (
     <main>
       {/* Container Header */}
@@ -185,21 +192,21 @@ const logout = () => {
             {isOpen && (
               <div className={style.menuInterativo}>
                 <div className={style.menu}>
-                {isLogged ? (
+                  {isLogged ? (
                     <>
                       <div className={style.menuItem}>Meu Perfil</div>
                       <div className={style.menuItem}>Minhas Reservas</div>
                       <div className={style.menuItem} onClick={logout}>Sair</div>
                     </>
                   ) : (
-                  <>
-                    <div onClick={() => handleCardOpen("login")} className={style.menuItem}>Entrar</div>
-                    <div onClick={() => handleCardOpen("cadastro")} className={style.menuItem}>Cadastrar</div>
-                  </>
+                    <>
+                      <div onClick={() => handleCardOpen("login")} className={style.menuItem}>Entrar</div>
+                      <div onClick={() => handleCardOpen("cadastro")} className={style.menuItem}>Cadastrar</div>
+                    </>
                   )}
                 </div>
               </div>
-            )}            
+            )}
             {activeCard && (
               <>
                 <div className={style.overlay} onClick={handleCardClose}></div>
@@ -282,7 +289,7 @@ const logout = () => {
       {/* Corpo da Página */}
       <div className={style.containerBody}>
         {/* Filtros Laterais */}
-        <aside className={style.filtros}>
+         <aside className={style.filtros}>
           <h2>Filtros</h2>
 
           <div className={style.containerTipoQuarto}>
@@ -325,27 +332,49 @@ const logout = () => {
               <option value="5">5 estrelas</option>
             </select>
           </div>
-        </aside>
+
+          <div className={style.containerCidade}>
+            <label>Cidade</label>
+            <input type="text" value={cidade} onChange={(e) => setCidade(e.target.value)} />
+          </div>
+
+          <div className={style.containerEstado}>
+            <label>Estado</label>
+            <input type="text" value={estado} onChange={(e) => setEstado(e.target.value)} />
+          </div>
+        </aside> 
 
         <section className={style.resultados}>
           <h2>Resultados da Busca</h2>
 
+          {/* Verificando se há quartos filtrados e se a resposta da API contém dados */}
           {hoteisFiltrados.length > 0 ? (
-            hoteisFiltrados.map(hotel => (
-              <div key={hotel.id} className={style.cardHotel}>
-                <Image src="/hotel-exemplo.jpg" alt={hotel.nome} width={200} height={150} />
+            hoteisFiltrados.map((quarto) => (
+              <div key={quarto.id} className={style.cardHotel}>
+                <Image
+                  // Verifica se a imagem foi recebida como uma string (base64 ou caminho relativo)
+                  src={quarto.imagem ? `data:image/jpeg;base64,${quarto.imagem}` : "/hotel-exemplo.jpg"}
+                  alt={quarto.nome}
+                  width={200}
+                  height={150}
+                  objectFit="cover" // Ajuste a imagem para preencher o espaço
+                />
                 <div className={style.informacoesHotel}>
-                  <h3>{hotel.nome}</h3>
-                  <p>Localização: {hotel.localizacao}</p>
-                  <p>Preço: {formatarValor(hotel.preco)}/noite</p>
+                  <p>{quarto.nomeQuarto}</p>
+                  <p>Endereço: {quarto.endereco}</p>
+                  <p>Preço: {formatarValor(quarto.preco)}/noite</p>
                 </div>
               </div>
             ))
           ) : (
-            <p className={style.nenhumResultado}>Nenhum hotel encontrado com os filtros aplicados.</p>
+            <p className={style.nenhumResultado}>Nenhum hotel encontrado.</p>
           )}
         </section>
       </div>
     </main >
   );
 }
+function setHoteis(data: any) {
+  throw new Error("Function not implemented.");
+}
+
