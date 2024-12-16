@@ -72,52 +72,6 @@ export default function TelaAnuncioQuarto() {
 
         setFormData({ ...formData, [name]: newValue });
     };
-
-    // const handleSubmit = async () => {
-    //     const response = await fetch('http://localhost:5057/api/Quarto/CriarQuarto', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Accept': 'application/json',
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //             nomeQuarto: formData.nomeQuarto,
-    //             descricao: formData.descricao,
-    //             preco: formData.preco,
-    //             capacidadePessoas: formData.capacidadePessoas,
-    //             disponibilidade: formData.disponibilidade,
-    //             comodidades: formData.comodidades,
-    //             endereco: formData.endereco,
-    //             estado: formData.estado,
-    //             cidade: formData.cidade,
-    //             donoId: formData.donoId,
-    //         }),
-    //     });
-    
-    //     const data = await response.json(); 
-    //     console.log(data);  
-    
-    //     if (response.ok) {
-    //         console.log('Quarto cadastrado com sucesso!');
-    //         alert('Quarto cadastrado com sucesso!');
-    //         setFormData({
-    //             nomeQuarto: "",
-    //             descricao: "",
-    //             preco: 0,
-    //             capacidadePessoas: 0,
-    //             disponibilidade: true,
-    //             comodidades: "",
-    //             endereco: "",
-    //             estado: "",
-    //             cidade: "",
-    //             donoId: 0,
-    //             image: null,
-    //         });
-    //         setStep(1);
-    //     } else {
-    //         alert('Erro ao cadastrar o quarto. Tente novamente.');
-    //     }
-    // };
     const handleSubmit = async () => {
         // Verificação simples para garantir que os campos obrigatórios estão preenchidos
         if (!formData.nomeQuarto || !formData.descricao || !formData.preco || !formData.capacidadePessoas || !formData.cidade || !formData.estado || !formData.endereco) {
@@ -136,7 +90,7 @@ export default function TelaAnuncioQuarto() {
             return;
         }
     
-        const response = await fetch('http://localhost:5057/api/Quarto/CriarQuarto', {
+        const response = await fetch('http://localhost:7274/api/Quarto/CriarQuarto', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
