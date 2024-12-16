@@ -1,0 +1,80 @@
+.searchInput {
+    width: 20%;
+    height: 30px;
+    margin: 10px 10px 10px 0px;
+    border-radius: 10px;
+    cursor: text;
+    border: 1px solid #ccc;
+}
+
+.adminContainer {
+    padding: 20px;
+}
+
+.adminTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.adminTable th,
+.adminTable td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+.containerInfo td{
+    text-align: center;
+    vertical-align: middle;
+}
+
+.containerButtonTabela {
+    display: flex;
+    justify-content: space-around;
+    flex: 1;
+    width: auto;
+    
+    .editButton {
+        width: 90px;
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        height: 40px; /* Exemplo de altura do botão */
+        background-color: rgb(57, 255, 47);
+        border-radius: 5px;
+        border: 1px solid #ccc; /* Borda opcional */
+        cursor: pointer;
+        display: flex;
+    }
+
+    .deleteButton {
+        width: 90px;
+        display: flex; /* Garante que o conteúdo dos botões seja tratado como flexível */
+        justify-content: center; /* Centraliza o conteúdo (ícones ou texto) dentro do botão */
+        align-items: center; /* Alinha verticalmente o conteúdo dentro do botão */
+        height: 40px; /* Exemplo de altura do botão */
+        background-color: red;
+        border-radius: 5px;
+        border: 1px solid #ccc; /* Borda opcional */
+        padding: 10px;
+        cursor: pointer;
+    }
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalContent {
+    display: flexbox;
+    width: 50%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}
