@@ -6,7 +6,7 @@ import menu from "@/app/icon/menu.svg";
 import buscar from "@/app/icon/pesquisar.svg";
 import style from "@/app/page.module.scss";
 import { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
 export default function TelaInicial() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeCard, setActiveCard] = useState<"login" | "cadastro" | null>(null);
@@ -24,6 +24,7 @@ export default function TelaInicial() {
   const [cpf, setCpf] = useState("");
   const [nascimento, setNascimento] = useState("");
   const [senha, setSenha] = useState("");
+  const router = useRouter();
 
  const salvarHospede = async () => {
     const dados = {
@@ -124,6 +125,7 @@ export default function TelaInicial() {
             setIsLogged(true);
             setErrorMessage("Login realizado com sucesso!");
             setActiveCard(null);
+            router.push("/telaPerfil");
             console.log("Usuário autenticado:", dadosUsuario);
         } else {
             const error = await response.json();
@@ -142,6 +144,7 @@ const logout = () => {
     setEmail("");
     setSenha("");
     setErrorMessage(null);
+    router.push("/"); 
 };
 
   
