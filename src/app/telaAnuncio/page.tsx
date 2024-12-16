@@ -31,7 +31,7 @@ export default function TelaAnuncio() {
         console.log("Dados enviados para a API:", dados); // Depuração para verificar os dados
     
         try {
-            const response = await fetch("http://localhost:5057/api/DonoHotel/CriarDono", {
+            const response = await fetch("http://localhost:7274/api/DonoHotel/CriarDono", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -53,7 +53,7 @@ export default function TelaAnuncio() {
 
     const loginDono = async () => {
         try {
-            const response = await fetch("http://localhost:5057/api/DonoHotel/login", {
+            const response = await fetch("http://localhost:7274/api/DonoHotel/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

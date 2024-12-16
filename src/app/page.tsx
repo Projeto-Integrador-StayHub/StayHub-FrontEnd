@@ -40,7 +40,7 @@ export default function TelaInicial() {
     console.log("Dados enviados para a API:", dados); // Depuração para verificar os dados
 
     try {
-      const response = await fetch("http://localhost:5057/api/Hospede/CriarHospede", {
+      const response = await fetch("http://localhost:7274/api/Hospede/CriarHospede", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -107,7 +107,7 @@ export default function TelaInicial() {
 
   const loginHospede = async () => {
     try {
-        const response = await fetch("http://localhost:5057/api/Hospede/login", { //mudar a porta
+        const response = await fetch("http://localhost:7274/api/Hospede/login", { //mudar a porta
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -66,7 +66,7 @@ export default function TelaPerfilDono() {
   const fetchUserData = async () => {
     try {
       const idDono = "id_do_dono"; 
-      const response = await fetch(`http://localhost:5057/api/DonoHotel/EditarDono/${idDono}`);
+      const response = await fetch(`http://localhost:7274/api/DonoHotel/EditarDono/${idDono}`);
       
       if (!response.ok) {
         throw new Error('Erro ao buscar dados do usuário');
@@ -123,7 +123,7 @@ export default function TelaPerfilDono() {
     if (valid) {
       try {
         const idDono = "id_do_dono";
-        const response = await fetch(`http://localhost:5057/api/DonoHotel/EditarDono/${idDono}`, {
+        const response = await fetch(`http://localhost:7274/api/DonoHotel/EditarDono/${idDono}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
