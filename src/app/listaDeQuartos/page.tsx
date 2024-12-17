@@ -23,7 +23,7 @@ export default function ListaDeQuartos() {
     useEffect(() => {
         const fetchQuartos = async () => {
             try {
-                const response = await fetch("http://localhost:5057/api/Quarto/ListarQuartos");
+                const response = await fetch("https://localhost:5057/api/Quarto/ListarQuartos");
                 const data = await response.json();
 
                 if (data.status) {

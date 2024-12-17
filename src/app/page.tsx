@@ -122,7 +122,7 @@ export default function TelaInicial() {
         setIsLogged(true);
         setErrorMessage("Login realizado com sucesso!");
         setActiveCard(null);
-        router.push("/telaPerfil");
+        //router.push("/telaPerfil");
       } else {
         const error = await response.json();
         setErrorMessage(error.message || "Erro ao realizar login");
@@ -153,7 +153,7 @@ export default function TelaInicial() {
     if (cidade) params.append("Cidade", cidade);
     if (estado) params.append("Estado", estado);
 
-    const url = `http://localhost:7274/filtros/filtroQuarto?${params.toString()}`;
+    const url = `https://localhost:7274/filtros/filtroQuarto?${params.toString()}`;
 
     try {
       const response = await fetch(url, {
