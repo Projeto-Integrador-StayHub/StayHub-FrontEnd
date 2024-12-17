@@ -7,40 +7,47 @@ import buscar from "@/app/icon/pesquisar.svg";
 import style from "@/app/page.module.scss";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
 export default function TelaInicial() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeCard, setActiveCard] = useState<"login" | "cadastro" | null>(null);
-  const [tipoQuarto, setTipoQuarto] = useState("single");
-  const [preco, setPreco] = useState(0);
-  const [qtdCamas, setQtdCamas] = useState(1);
-  const [classificacaoMinima, setClassificacaoMinima] = useState(0);
+
+  // Filtros
+  const [nomeQuarto, setNomeQuarto] = useState("");
+  const [precoMinimo, setPrecoMinimo] = useState<number | null>(null);
+  const [precoMaximo, setPrecoMaximo] = useState<number | null>(null);
+  const [capacidadePessoas, setCapacidadePessoas] = useState<number | null>(null);
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
+
   const [hoteisFiltrados, setHoteisFiltrados] = useState<any[]>([]);
   const [isLogged, setIsLogged] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Dados de cadastro/login
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cpf, setCpf] = useState("");
   const [nascimento, setNascimento] = useState("");
   const [senha, setSenha] = useState("");
+
   const router = useRouter();
 
- const salvarHospede = async () => {
+  // Função para salvar um novo hóspede
+  const salvarHospede = async () => {
     const dados = {
       nome,
       email,
-      senha, 
+      senha,
       telefone,
       nascimento,
       cpf,
-      endereco: "Endereço Exemplo" // Endereço pode ser uma variável ou campo adicional
+      endereco: "Endereço Exemplo"
     };
 
-    console.log("Dados enviados para a API:", dados); // Depuração para verificar os dados
-
     try {
-      const response = await fetch("http://localhost:7274/api/Hospede/CriarHospede", {
+      const response = await fetch("https://localhost:7274/api/Hospede/CriarHospede", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -49,16 +56,13 @@ export default function TelaInicial() {
       });
 
       if (response.ok) {
-        // const result = await response.json();
-        // console.log("Hospede salvo com sucesso:", result);
         setErrorMessage("Cadastro realizado com sucesso!");
         setActiveCard(null);
       } else {
-        // console.error("Erro ao salvar hospede:", response.statusText);
         setErrorMessage("Erro ao cadastrar. Dados incorretos");
       }
     } catch (error) {
-      console.error("Erro na requisição:", error);
+      console.error("Erro na requisição de cadastro:", error);
     }
   };
 
@@ -73,81 +77,117 @@ export default function TelaInicial() {
 
   const handleCardClose = () => setActiveCard(null);
 
-  // Simulando dados de hotéis para o exemplo
-  const hoteis = [
-    { id: 1, nome: "Hotel Exemplo 1", localizacao: "São Paulo", preco: 200, tipo: "single", camas: 1, classificacao: 4 },
-    { id: 2, nome: "Hotel Exemplo 2", localizacao: "Rio de Janeiro", preco: 300, tipo: "double", camas: 2, classificacao: 5 },
-    { id: 3, nome: "Hotel Exemplo 3", localizacao: "Curitiba", preco: 150, tipo: "suite", camas: 1, classificacao: 3 },
-  ];
+  // Função para buscar todos os hotéis (listagem inicial)
+  const buscarHoteis = async () => {
+    try {
+      const response = await fetch("https://localhost:7274/api/Quarto/ListarQuartos", {
+        method: "GET",
+      });
 
+      if (response.ok) {
+        const data = await response.json();
+        setHoteisFiltrados(data.dados || []);
+      } else {
+        console.error("Erro na resposta da API:", response.statusText);
+        setErrorMessage("Erro ao buscar hotéis.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      setErrorMessage("Erro ao buscar hotéis.");
+    }
+  };
+
+  // Carrega todos os hotéis ao montar o componente
   useEffect(() => {
-    const filtrarHoteis = hoteis.filter(hotel => {
-      const precoValido = preco === 0 || hotel.preco <= preco;
-      const tipoQuartoValido = tipoQuarto === "single" || hotel.tipo === tipoQuarto;
-      const camasValidas = hotel.camas >= qtdCamas;
-      const classificacaoValida = hotel.classificacao >= classificacaoMinima;
-
-
-      return precoValido && tipoQuartoValido && camasValidas && classificacaoValida;
-    });
-
-
-    setHoteisFiltrados(filtrarHoteis);
-  }, [preco, tipoQuarto, qtdCamas, classificacaoMinima]);
-
-
-  const formatarValor = (valor: number) => {
-    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  };
-
-  const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valor = e.target.value.replace("R$", "").trim();
-    setPreco(parseFloat(valor) || 0); // Converte para número diretamente
-  };
+    buscarHoteis();
+  }, []);
 
   const loginHospede = async () => {
     try {
-        const response = await fetch("http://localhost:7274/api/Hospede/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password: senha,
-                twoFactorCode: null,
-                twoFactorRecoveryCode: null,
-            }),
-        });
+      const response = await fetch("https://localhost:7274/api/Hospede/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password: senha,
+          twoFactorCode: null,
+          twoFactorRecoveryCode: null,
+        }),
+      });
 
-        if (response.ok) {
-            const dadosUsuario = await response.json();
-            setIsLogged(true);
-            setErrorMessage("Login realizado com sucesso!");
-            setActiveCard(null);
-            router.push("/telaPerfil");
-            console.log("Usuário autenticado:", dadosUsuario);
-        } else {
-            const error = await response.json();
-            setErrorMessage(error.message || "Erro ao realizar login");
-        }
+      if (response.ok) {
+        const dadosUsuario = await response.json();
+        setIsLogged(true);
+        setErrorMessage("Login realizado com sucesso!");
+        setActiveCard(null);
+        router.push("/telaPerfil");
+      } else {
+        const error = await response.json();
+        setErrorMessage(error.message || "Erro ao realizar login");
+      }
     } catch (error) {
-        console.error("Erro na requisição:", error);
-        setErrorMessage("Não foi possível conectar ao servidor.");
+      console.error("Erro na requisição de login:", error);
+      setErrorMessage("Não foi possível conectar ao servidor.");
     }
-};
+  };
 
-
-const logout = () => {
+  const logout = () => {
     setIsLogged(false);
     setIsOpen(false);
     setEmail("");
     setSenha("");
     setErrorMessage(null);
-    router.push("/"); 
-};
+    router.push("/");
+  };
 
-  
+  // Função para aplicar filtros
+  const aplicarFiltros = async () => {
+    const params = new URLSearchParams();
+
+    if (nomeQuarto) params.append("NomeQuarto", nomeQuarto);
+    if (precoMinimo !== null && !isNaN(precoMinimo)) params.append("PrecoMinimo", precoMinimo.toString());
+    if (precoMaximo !== null && !isNaN(precoMaximo)) params.append("PrecoMaximo", precoMaximo.toString());
+    if (capacidadePessoas !== null && !isNaN(capacidadePessoas)) params.append("CapacidadePessoas", capacidadePessoas.toString());
+    if (cidade) params.append("Cidade", cidade);
+    if (estado) params.append("Estado", estado);
+
+    const url = `http://localhost:7274/filtros/filtroQuarto?${params.toString()}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setHoteisFiltrados(data.dados || []);
+      } else {
+        console.error("Erro na resposta da API de filtros:", response.statusText);
+        setErrorMessage("Erro ao buscar hotéis filtrados.");
+      }
+    } catch (error) {
+      console.error("Erro na requisição de filtros:", error);
+      setErrorMessage("Erro ao buscar hotéis filtrados.");
+    }
+  };
+
+  const handlePrecoMinimoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = parseFloat(e.target.value) || 0;
+    setPrecoMinimo(valor);
+  };
+
+  const handlePrecoMaximoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = parseFloat(e.target.value) || 0;
+    setPrecoMaximo(valor);
+  };
+
+  const handleCapacidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = parseInt(e.target.value, 10);
+    setCapacidadePessoas(isNaN(valor) ? null : valor);
+  };
+
   return (
     <main>
       {/* Container Header */}
@@ -159,18 +199,19 @@ const logout = () => {
 
           <div className={style.anuncioProprietario}>
             <a href="/telaAnuncio">
-              <button className={style.buttonAnucio}>Anuncie seu espaço no StayHub</button></a>
+              <button className={style.buttonAnucio}>Anuncie seu espaço no StayHub</button>
+            </a>
 
             <div className={style.filtroPesquisa}>
-              <div className={style.campoPesquisa} key="onde">
+              <div className={style.campoPesquisa}>
                 <label>Onde</label>
                 <input type="text" placeholder="Buscar destinos" />
               </div>
-              <div className={style.campoPesquisa} key="checkin">
+              <div className={style.campoPesquisa}>
                 <label>Check-in</label>
                 <input type="text" placeholder="Insira as datas" />
               </div>
-              <div className={style.campoPesquisa} key="checkout">
+              <div className={style.campoPesquisa}>
                 <label>Checkout</label>
                 <input type="text" placeholder="Insira as datas" />
               </div>
@@ -188,21 +229,23 @@ const logout = () => {
             {isOpen && (
               <div className={style.menuInterativo}>
                 <div className={style.menu}>
-                {isLogged ? (
+                  {isLogged ? (
                     <>
-                      <div className={style.menuItem}><a href="/telaPerfil"></a>Meu Perfil</div>
+                      <div className={style.menuItem}>
+                        <a href="/telaPerfil">Meu Perfil</a>
+                      </div>
                       <div className={style.menuItem}>Minhas Reservas</div>
                       <div className={style.menuItem} onClick={logout}>Sair</div>
                     </>
                   ) : (
-                  <>
-                    <div onClick={() => handleCardOpen("login")} className={style.menuItem}>Entrar</div>
-                    <div onClick={() => handleCardOpen("cadastro")} className={style.menuItem}>Cadastrar</div>
-                  </>
+                    <>
+                      <div onClick={() => handleCardOpen("login")} className={style.menuItem}>Entrar</div>
+                      <div onClick={() => handleCardOpen("cadastro")} className={style.menuItem}>Cadastrar</div>
+                    </>
                   )}
                 </div>
               </div>
-            )}            
+            )}
             {activeCard && (
               <>
                 <div className={style.overlay} onClick={handleCardClose}></div>
@@ -275,6 +318,7 @@ const logout = () => {
                       </div>
                     </>
                   )}
+                  {errorMessage && <p className={style.errorMessage}>{errorMessage}</p>}
                 </div>
               </>
             )}
@@ -288,67 +332,94 @@ const logout = () => {
         <aside className={style.filtros}>
           <h2>Filtros</h2>
 
-          <div className={style.containerTipoQuarto}>
-            <label>Tipo de Quarto</label>
-            <select value={tipoQuarto} onChange={(e) => setTipoQuarto(e.target.value)}>
-              <option value="single">Solteiro</option>
-              <option value="double">Casal</option>
-              <option value="suite">Suíte</option>
-            </select>
-          </div>
-
-          <div className={style.containerPreco}>
-            <label>Valor em Reais</label>
+          <div>
+            <label>Nome do Quarto</label>
             <input
               type="text"
-              value={formatarValor(preco)}
-              onChange={handlePrecoChange}
-              placeholder="Digite o valor"
+              value={nomeQuarto}
+              onChange={(e) => setNomeQuarto(e.target.value)}
+              placeholder="Ex: Suite Master"
             />
           </div>
 
-          <div className={style.containerQtdCamas}>
-            <label>Quantidade de Camas</label>
+          <div>
+            <label>Preço Mínimo</label>
             <input
               type="number"
-              value={qtdCamas}
-              onChange={(e) => setQtdCamas(Number(e.target.value))}
-              min="1"
+              value={precoMinimo ?? ""}
+              onChange={handlePrecoMinimoChange}
+              placeholder="Ex: 100"
             />
           </div>
 
-          <div className={style.containerClassificacao}>
-            <label>Classificação Mínima</label>
-            <select value={classificacaoMinima} onChange={(e) => setClassificacaoMinima(Number(e.target.value))}>
-              <option value="0">Todas</option>
-              <option value="1">1 estrela</option>
-              <option value="2">2 estrelas</option>
-              <option value="3">3 estrelas</option>
-              <option value="4">4 estrelas</option>
-              <option value="5">5 estrelas</option>
-            </select>
+          <div>
+            <label>Preço Máximo</label>
+            <input
+              type="number"
+              value={precoMaximo ?? ""}
+              onChange={handlePrecoMaximoChange}
+              placeholder="Ex: 500"
+            />
           </div>
+
+          <div>
+            <label>Capacidade de Pessoas</label>
+            <input
+              type="number"
+              value={capacidadePessoas ?? ""}
+              onChange={handleCapacidadeChange}
+              placeholder="Ex: 2"
+            />
+          </div>
+
+          <div>
+            <label>Cidade</label>
+            <input
+              type="text"
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
+              placeholder="Ex: São Paulo"
+            />
+          </div>
+
+          <div>
+            <label>Estado</label>
+            <input
+              type="text"
+              value={estado}
+              onChange={(e) => setEstado(e.target.value)}
+              placeholder="Ex: SP"
+            />
+          </div>
+
+          <button onClick={aplicarFiltros}>Filtrar</button>
         </aside>
 
         <section className={style.resultados}>
           <h2>Resultados da Busca</h2>
 
-          {hoteisFiltrados.length > 0 ? (
-            hoteisFiltrados.map(hotel => (
-              <div key={hotel.id} className={style.cardHotel}>
-                <Image src="/hotel-exemplo.jpg" alt={hotel.nome} width={200} height={150} />
+          {hoteisFiltrados && hoteisFiltrados.length > 0 ? (
+            hoteisFiltrados.map((quarto) => (
+              <div key={quarto.id} className={style.cardHotel}>
+                <Image
+                  src={quarto.imagem ? `data:image/jpeg;base64,${quarto.imagem}` : "/hotel-exemplo.jpg"}
+                  alt={quarto.nomeQuarto}
+                  width={200}
+                  height={150}
+                  style={{ objectFit: "cover" }}
+                />
                 <div className={style.informacoesHotel}>
-                  <h3>{hotel.nome}</h3>
-                  <p>Localização: {hotel.localizacao}</p>
-                  <p>Preço: {formatarValor(hotel.preco)}/noite</p>
+                  <p>{quarto.nomeQuarto}</p>
+                  <p>Endereço: {quarto.endereco}</p>
+                  <p>Preço: R$ {quarto.preco}/noite</p>
                 </div>
               </div>
             ))
           ) : (
-            <p className={style.nenhumResultado}>Nenhum hotel encontrado com os filtros aplicados.</p>
+            <p className={style.nenhumResultado}>Nenhum hotel encontrado.</p>
           )}
         </section>
       </div>
-    </main >
+    </main>
   );
 }

@@ -591,7 +591,7 @@ const AdminPanel = () => {
               {filteredReservas.length > 0 ? (
                 filteredReservas.map((reserva) => (
                   <tr className={style.containerInfo} key={reserva.id}>
-                    <td>{reserva.nome}</td>
+                    <td>{reserva.nomeQuarto}</td>
                     <td>{reserva.descricao}</td>
                     <td>{reserva.entrada}</td>
                     <td>{reserva.saida}</td>
