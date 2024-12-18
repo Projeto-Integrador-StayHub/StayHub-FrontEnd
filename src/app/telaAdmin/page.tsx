@@ -25,6 +25,23 @@ const AdminPanel = () => {
   const [editAvaliacao, setEditAvaliacao] = useState(null);
   const [isEditingAvaliacao, setIsEditingAvaliacao] = useState(false);
 
+  const handleStartScraping = async () => {
+    try {
+      const response = await fetch('https://localhost:7274/api/Scraper/start-scraping', {
+        method: 'POST'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      document.getElementById('responseMessage')!.innerText = data.message || 'Scraping started successfully!';
+    } catch (error: any) {
+      document.getElementById('responseMessage')!.innerText = `Error: ${error.message}`;
+    }
+  };
+
   const listarUsuarios = async () => {
     try {
       const response = await fetch("https://localhost:7274/api/Hospede/ListarHospedes", {
@@ -36,13 +53,12 @@ const AdminPanel = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.dados); 
+        setUsers(data.dados);
         const error = await response.json();
         setErrorMessage(error.message || "Erro ao listar usuários");
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
-      setErrorMessage("Não foi possível conectar ao servidor.");
     }
   };
   const handleSaveEdit = async (updatedUser: any) => {
@@ -54,7 +70,7 @@ const AdminPanel = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(updatedUser), 
+          body: JSON.stringify(updatedUser),
         }
       );
 
@@ -85,7 +101,7 @@ const AdminPanel = () => {
         });
 
         if (response.ok) {
-          setUsers(users.filter((user) => user.id !== id)); 
+          setUsers(users.filter((user) => user.id !== id));
           alert("Usuário excluído com sucesso!");
         } else {
           const error = await response.json();
@@ -124,37 +140,6 @@ const AdminPanel = () => {
     }
   };
 
-  const handleSaveOwnerEdit = async (updatedOwner: any) => {
-    try {
-      const response = await fetch(
-        `https://localhost:7274/api/DonoHotel/EditarDono/${updatedOwner.id}`, // Substitua pelo ID do dono
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedOwner),
-        }
-      );
-
-      if (response.ok) {
-        setOwners(
-          owners.map((owner) =>
-            owner.id === updatedOwner.id ? updatedOwner : owner
-          )
-        );
-        setIsEditing(false);
-        setEditUser(null);
-      } else {
-        const error = await response.json();
-        setErrorMessage(error.message || "Erro ao editar dono de hotel");
-      }
-    } catch (error) {
-      console.error("Erro na requisição:", error);
-      setErrorMessage("Não foi possível atualizar o dono.");
-    }
-  };
-
   const handleDeleteOwner = async (id: number) => {
     if (confirm("Tem certeza que deseja excluir este dono de hotel?")) {
       try {
@@ -186,6 +171,10 @@ const AdminPanel = () => {
     setEditReservas(reserva);
     setIsEditing(true);
   };
+  const handleEditRoom = (room: any) => {
+    setIsEditing(room); // Define o quarto que está sendo editado
+    setIsEditingRoom(true); // Ativa o modo de edição
+  };
 
   const listarReserva = async () => {
     try {
@@ -211,7 +200,7 @@ const AdminPanel = () => {
   const handleSaveReservasEdit = async (updatedReserva: any) => {
     try {
       const response = await fetch(
-        `https://localhost:7274/api/Reserva/EditarReserva/${updatedReserva.id}`, 
+        `https://localhost:7274/api/Reserva/EditarReserva/${updatedReserva.id}`,
         {
           method: "PUT",
           headers: {
@@ -223,7 +212,7 @@ const AdminPanel = () => {
 
       if (response.ok) {
         setReserva(
-          reserva.map((r) => (r.id === updatedReserva.id ? updatedReserva : r)) 
+          reserva.map((r) => (r.id === updatedReserva.id ? updatedReserva : r))
         );
         setIsEditing(false);
         setEditReservas(null);
@@ -273,6 +262,7 @@ const AdminPanel = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Dados recebidos:", data);
         setRooms(data.dados);
       } else {
         const error = await response.json();
@@ -285,8 +275,16 @@ const AdminPanel = () => {
   };
 
   // Função para editar quarto
+  
+  // Chamada para salvar após edição
   const handleSaveRoomEdit = async (updatedRoom: any) => {
     try {
+      console.log("Objeto atualizado recebido:", updatedRoom);
+
+      if (!updatedRoom || !updatedRoom.id) {
+        throw new Error("O objeto atualizado não contém um ID válido.");
+      }
+
       const response = await fetch(
         `https://localhost:7274/api/Quarto/EditarQuarto/${updatedRoom.id}`,
         {
@@ -300,7 +298,7 @@ const AdminPanel = () => {
 
       if (response.ok) {
         setRooms(rooms.map((room) => (room.id === updatedRoom.id ? updatedRoom : room)));
-        setIsEditingRoom(false);
+        setIsEditing(false);
         setEditRoom(null);
       } else {
         const error = await response.json();
@@ -308,9 +306,11 @@ const AdminPanel = () => {
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
-      setErrorMessage("Não foi possível atualizar o quarto.");
+      setErrorMessage("Não foi possível atualizar a reserva.");
     }
   };
+
+
 
   // Função para excluir quarto
   const handleDeleteRoom = async (id: number) => {
@@ -348,7 +348,7 @@ const AdminPanel = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setAvaliacoes(data.dados); 
+        setAvaliacoes(data.dados);
       } else {
         const error = await response.json();
         setErrorMessage(error.message || "Erro ao listar avaliações");
@@ -423,7 +423,7 @@ const AdminPanel = () => {
     listarUsuarios();
     listarDonos();
     listarReserva();
-    listarQuartos(); 
+    listarQuartos();
     listarAvaliacoes
   }, []);
 
@@ -431,9 +431,10 @@ const AdminPanel = () => {
     user.nome.toLowerCase().includes(search.toLowerCase())
   );
 
-  const filteredOwners = owners.filter((owner) =>
-    owner.nome.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredOwners = owners
+    ?.filter((owner) =>
+      owner?.nome?.toLowerCase().includes(search?.toLowerCase() || "")
+    ) || [];
 
   const filteredReservas = reserva.filter((reserva) =>
     reserva.nome.toLowerCase().includes(search.toLowerCase())
@@ -447,6 +448,12 @@ const AdminPanel = () => {
   return (
     <main className={style.adminContainer}>
       <h1>Painel de Administração</h1>
+
+      <div>
+        <h1>Scraping</h1>
+        <button onClick={handleStartScraping}>Começar Scraping</button>
+        <p id="responseMessage"></p>
+      </div>
 
       <Tabs>
         <TabList>
@@ -637,7 +644,7 @@ const AdminPanel = () => {
             <thead>
               <tr>
                 <th>Nome</th>
-                <th>Descrição</th>
+                <th>Capacidade de Pessoas</th>
                 <th>Preço</th>
                 <th>Ações</th>
               </tr>
@@ -646,16 +653,13 @@ const AdminPanel = () => {
               {rooms.length > 0 ? (
                 rooms.map((room) => (
                   <tr key={room.id}>
-                    <td>{room.nome}</td>
-                    <td>{room.descricao}</td>
+                    <td>{room.nomeQuarto}</td>
+                    <td>{room.capacidadePessoas}</td>
                     <td>{room.preco}</td>
                     <td>
                       <button
                         className={style.editButton}
-                        onClick={() => {
-                          setEditRoom(room);
-                          setIsEditingRoom(true);
-                        }}
+                        onClick={() => handleEditRoom(room)}
                       >
                         Editar
                       </button>
@@ -670,7 +674,7 @@ const AdminPanel = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4">Nenhum quarto encontrado.</td>
+                  <td colSpan={4}>Nenhum quarto encontrado</td>
                 </tr>
               )}
             </tbody>
@@ -739,14 +743,14 @@ const AdminPanel = () => {
           {editUser && (
             <EditModal
               user={editUser}
-              onSave={handleSaveEdit}  
+              onSave={handleSaveEdit}
               onCancel={() => setIsEditing(false)}
             />
           )}
           {editReservas && (
             <EditReservaModal
-              reserva={editReservas}  
-              onSave={handleSaveReservasEdit} 
+              reserva={editReservas}
+              onSave={handleSaveReservasEdit}
               onCancel={() => setIsEditing(false)}
             />
           )}
@@ -914,7 +918,7 @@ const EditReservaModal = ({ reserva, onSave, onCancel }: any) => {
   );
 };
 const EditRoomModal = ({ room, onSave, onCancel }: any) => {
-  const [name, setName] = useState(room.nome);
+  const [name, setName] = useState(room.nomeQuarto);
   const [descricao, setDescricao] = useState(room.descricao);
   const [preco, setPreco] = useState(room.preco);
   const [capacidadePessoas, setCapacidadePessoas] = useState(room.capacidadePessoas)
