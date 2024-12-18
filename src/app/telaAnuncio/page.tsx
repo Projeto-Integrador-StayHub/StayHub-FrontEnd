@@ -3,20 +3,19 @@ import Image from "next/image";
 import style from "../../app/telaAnuncio/page.module.scss";
 import imageLogo from "../image/imagemFundo.png";
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 export default function TelaAnuncio() {
     const [form, setIsForm] = useState(false);
     const [isCadastro, setIsCadastro] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    // Estados para os campos de formulário
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
     const [cpf, setCpf] = useState("");
     const [nascimento, setNascimento] = useState("");
     const [senha, setSenha] = useState("");
+    const router = useRouter();
 
-    // Função para salvar o dono
     const salvarDono = async () => {
         const dados = {
             nome,
@@ -31,7 +30,7 @@ export default function TelaAnuncio() {
         console.log("Dados enviados para a API:", dados); // Depuração para verificar os dados
     
         try {
-            const response = await fetch("http://localhost:7274/api/DonoHotel/CriarDono", {
+            const response = await fetch("https://localhost:7274/api/DonoHotel/CriarDono", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -53,7 +52,7 @@ export default function TelaAnuncio() {
 
     const loginDono = async () => {
         try {
-            const response = await fetch("http://localhost:7274/api/DonoHotel/login", {
+            const response = await fetch("https://localhost:7274/api/DonoHotel/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -71,6 +70,7 @@ export default function TelaAnuncio() {
               
                 setErrorMessage("Login realizado com sucesso!");
                 console.log("Usuário autenticado:", dadosDono);
+                router.push("/telaAnuncioQuarto");
             } else {
                 const error = await response.json();
                 setErrorMessage(error.message || "Erro ao realizar login");

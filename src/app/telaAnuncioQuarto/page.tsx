@@ -35,7 +35,7 @@ export default function TelaAnuncioQuarto() {
         endereco: "",
         estado: "",
         cidade: "",
-        donoId: 0,
+        donoId: 1,
         image: null,
     });
 
@@ -89,26 +89,28 @@ export default function TelaAnuncioQuarto() {
             alert("A capacidade de pessoas deve ser um valor positivo.");
             return;
         }
+        
+        const formDataToSend = new FormData();
+
+        // Adiciona os campos de texto
+        formDataToSend.append('nomeQuarto', formData.nomeQuarto);
+        formDataToSend.append('descricao', formData.descricao);
+        formDataToSend.append('preco', formData.preco.toString());
+        formDataToSend.append('capacidadePessoas', formData.capacidadePessoas.toString());
+        formDataToSend.append('disponibilidade', formData.disponibilidade.toString());
+        formDataToSend.append('comodidades', formData.comodidades);
+        formDataToSend.append('endereco', formData.endereco);
+        formDataToSend.append('estado', formData.estado);
+        formDataToSend.append('cidade', formData.cidade);
+        formDataToSend.append('donoId', formData.donoId.toString());
+
+
+
     
-        const response = await fetch('http://localhost:7274/api/Quarto/CriarQuarto', {
+        const response = await fetch('https://localhost:7274/api/Quarto/CriarQuarto', {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                nomeQuarto: formData.nomeQuarto,
-                descricao: formData.descricao,
-                preco: formData.preco,
-                capacidadePessoas: formData.capacidadePessoas,
-                disponibilidade: formData.disponibilidade,
-                comodidades: formData.comodidades,
-                endereco: formData.endereco,
-                estado: formData.estado,
-                cidade: formData.cidade,
-                donoId: formData.donoId,
-            }),
-        });
+            body: formDataToSend,
+        })
     
         const data = await response.json(); // Para obter a resposta da API
         console.log(data);  // Verifique a resposta da API
@@ -126,7 +128,7 @@ export default function TelaAnuncioQuarto() {
                 endereco: "",
                 estado: "",
                 cidade: "",
-                donoId: 0,
+                donoId: 1,
                 image: null,
             });
             setStep(1);
