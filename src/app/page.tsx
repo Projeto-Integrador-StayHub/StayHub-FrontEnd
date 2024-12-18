@@ -49,8 +49,6 @@ export default function TelaInicial() {
       });
 
       if (response.ok) {
-        // const result = await response.json();
-        // console.log("Hospede salvo com sucesso:", result);
         setErrorMessage("Cadastro realizado com sucesso!");
         setActiveCard(null);
       } else {
@@ -125,7 +123,6 @@ export default function TelaInicial() {
             setIsLogged(true);
             setErrorMessage("Login realizado com sucesso!");
             setActiveCard(null);
-            router.push("/telaPerfil");
             console.log("Usuário autenticado:", dadosUsuario);
         } else {
             const error = await response.json();
@@ -154,7 +151,9 @@ const logout = () => {
       <div id={style.containerHeader}>
         <div className={style.header}>
           <div className={style.logo}>
-            <a href="/"><Image src={logo} alt="logo" className={style.logo} /></a>
+            <button className={style.buttonLogo} onClick={() => router.push("/")}>
+              <Image src={logo} alt="logo" className={style.logo} />
+            </button>
           </div>
 
           <div className={style.anuncioProprietario}>
@@ -190,7 +189,7 @@ const logout = () => {
                 <div className={style.menu}>
                 {isLogged ? (
                     <>
-                      <div className={style.menuItem}><a href="/telaPerfil"></a>Meu Perfil</div>
+                      <div className={style.menuItem} onClick={() => router.push("/telaPerfil")}>Meu Perfil</div>
                       <div className={style.menuItem}>Minhas Reservas</div>
                       <div className={style.menuItem} onClick={logout}>Sair</div>
                     </>
