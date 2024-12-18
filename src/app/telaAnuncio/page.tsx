@@ -4,6 +4,7 @@ import style from "../../app/telaAnuncio/page.module.scss";
 import imageLogo from "../image/imagemFundo.png";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
 export default function TelaAnuncio() {
     const [form, setIsForm] = useState(false);
     const [isCadastro, setIsCadastro] = useState(false);

@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@mantine/core": "^7.13.5",
     "@mantine/dates": "^7.13.5",
     "@mantine/hooks": "^7.13.5",
+    "@mui/material": "^6.1.10",
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
@@ -21,6 +24,8 @@
     "react-day-picker": "^9.3.0",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.5",
+    "react-router-dom": "^7.0.2",
+    "react-tabs": "^6.0.2",
     "sass": "^1.83.0"
   },
   "devDependencies": {

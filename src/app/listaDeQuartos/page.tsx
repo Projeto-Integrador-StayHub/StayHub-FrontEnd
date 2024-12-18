@@ -25,6 +25,7 @@ export default function ListaDeQuartos() {
         const fetchQuartos = async () => {
             try {
                 const response = await fetch("https://localhost:7274/api/Quarto/ListarQuartos");
+
                 const data = await response.json();
 
                 if (data.status && data.dados) {

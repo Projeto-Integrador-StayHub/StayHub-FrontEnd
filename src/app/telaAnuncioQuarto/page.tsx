@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import style from "../../app/telaAnuncioQuarto/page.module.scss";
@@ -7,28 +7,13 @@ import fotoQuarto from "@/app/image/fotoQuarto.png";
 import logo from "@/app/icon/logo.svg";
 import menu from "@/app/icon/menu.svg";
 
-type QuartoData = {
-    nomeQuarto: string;
-    descricao: string;
-    preco: number;
-    capacidadePessoas: number;
-    disponibilidade: boolean;
-    comodidades: string;
-    endereco: string;
-    estado: string;
-    cidade: string;
-    donoId: number;
-    image: string | null;
-};
-
 export default function TelaAnuncioQuarto() {
     const [isOpen, setIsOpen] = useState(false);
-    const [isLogged, setIsLogged] = useState(false);
     const [step, setStep] = useState<number>(1);
-    const [formData, setFormData] = useState<QuartoData>({
+    const [formData, setFormData] = useState({
         nomeQuarto: "",
         descricao: "",
-        preco: 0,
+        preco: number,
         capacidadePessoas: 0,
         disponibilidade: true,
         comodidades: "",
@@ -49,46 +34,65 @@ export default function TelaAnuncioQuarto() {
         const input = document.createElement("input");
         input.type = "file";
         input.accept = "image/*";
-        input.onchange = (event) => {
+        input.onchange = async (event) => {
             const file = (event.target as HTMLInputElement).files?.[0];
             if (file) {
-                const imageUrl = URL.createObjectURL(file);
-                setFormData({ ...formData, image: imageUrl });
+                const reader = new FileReader();
+                reader.onload = () => {
+                    setFormData({ ...formData, image: reader.result as string });
+                };
+                reader.readAsDataURL(file); // Converte para base64
             }
         };
         input.click();
     };
 
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value, type } = e.target as HTMLInputElement;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value, type } = e.target;
         const newValue =
-            type === "checkbox"
-                ? (e.target as HTMLInputElement).checked
-                : type === "number"
-                ? Number(value)
-                : value;
-
+            type === "checkbox" ? (e.target as HTMLInputElement).checked : type === "number" ? Number(value) : value;
         setFormData({ ...formData, [name]: newValue });
     };
+
     const handleSubmit = async () => {
-        // Verificação simples para garantir que os campos obrigatórios estão preenchidos
-        if (!formData.nomeQuarto || !formData.descricao || !formData.preco || !formData.capacidadePessoas || !formData.cidade || !formData.estado || !formData.endereco) {
-            alert("Por favor, preencha todos os campos obrigatórios!");
-            return;
-        }
+        try {
+            // Verifique se todos os campos obrigatórios estão preenchidos
+            if (!formData.nomeQuarto || !formData.descricao || !formData.preco || !formData.capacidadePessoas || !formData.cidade || !formData.estado || !formData.endereco) {
+                alert("Por favor, preencha todos os campos obrigatórios!");
+                return;
+            }
     
-        // Verificação para garantir que o preço e a capacidade de pessoas sejam números positivos
-        if (formData.preco <= 0) {
-            alert("O preço deve ser um valor positivo.");
-            return;
-        }
+            const payload = { ...formData };
     
-        if (formData.capacidadePessoas <= 0) {
-            alert("A capacidade de pessoas deve ser um valor positivo.");
-            return;
-        }
+            const response = await fetch("https://localhost:7274/api/Quarto/CriarQuarto", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(payload),
+                mode: "cors", // Adiciona suporte a CORS em ambiente de teste
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+    
+                // Exibindo os detalhes dos erros de validação
+                if (errorData.errors) {
+                    const errorMessages = Object.values(errorData.errors).join(", ");
+                    alert(`Erro de validação: ${errorMessages}`);
+                } else {
+                    alert(`Erro desconhecido: ${errorData.title || "Erro desconhecido"}`);
+                }
+    
+                console.error("Erro no servidor:", errorData);
+                return;
+            }
+          
+          if (formData.capacidadePessoas <= 0) {
+              alert("A capacidade de pessoas deve ser um valor positivo.");
+              return;
+          }
         
         const formDataToSend = new FormData();
 
@@ -104,24 +108,20 @@ export default function TelaAnuncioQuarto() {
         formDataToSend.append('cidade', formData.cidade);
         formDataToSend.append('donoId', formData.donoId.toString());
 
-
-
-    
         const response = await fetch('https://localhost:7274/api/Quarto/CriarQuarto', {
             method: 'POST',
             body: formDataToSend,
         })
     
-        const data = await response.json(); // Para obter a resposta da API
-        console.log(data);  // Verifique a resposta da API
+            const data = await response.json();
+
+            alert("Quarto cadastrado com sucesso!");
     
-        if (response.ok) {
-            console.log('Quarto cadastrado com sucesso!');
-            alert('Quarto cadastrado com sucesso!');
+            // Resetando o formulário
             setFormData({
                 nomeQuarto: "",
                 descricao: "",
-                preco: 0 ,
+                preco: 0,
                 capacidadePessoas: 0,
                 disponibilidade: true,
                 comodidades: "",
@@ -131,9 +131,10 @@ export default function TelaAnuncioQuarto() {
                 donoId: 1,
                 image: null,
             });
+    
             setStep(1);
-        } else {
-            alert('Erro ao cadastrar o quarto. Tente novamente.');
+        } catch (error) {
+            alert("Erro ao conectar ao servidor. Verifique se a API está online.");
         }
     };
     
@@ -177,7 +178,7 @@ export default function TelaAnuncioQuarto() {
                             {formData.image ? (
                                 <Image src={formData.image} alt="Prévia" width={450} height={350} />
                             ) : (
-                                <Image src={fotoQuarto} alt="Clique para selecionar imagem" width={450} height={350} priority  />
+                                <Image src={fotoQuarto} alt="Clique para selecionar imagem" width={450} height={350} priority />
                             )}
                         </div>
                         <button className={style.button} onClick={() => setStep(3)}>Continuar</button>
@@ -187,86 +188,84 @@ export default function TelaAnuncioQuarto() {
                 {step === 3 && (
                     <div className={style.step3}>
                         <h2 className={style.tituloInicial}>Preencha as informações do quarto</h2>
-                        <form>
-                            <label className={style.campoNomes}>Nome do Quarto:</label>
-                            <input
-                                name="nomeQuarto"
-                                placeholder="Nome do Quarto"
-                                value={formData.nomeQuarto}
-                                onChange={handleInputChange}
-                                className={style.input}
-                            />
-                            <label className={style.campoNomes}>Descrição: </label>
-                            <textarea
-                                name="descricao"
-                                placeholder="Descrição"
-                                value={formData.descricao}
-                                onChange={handleInputChange}
-                                className={style.input}
-                            />
-                            <label className={style.campoNomes}>Preço: </label>
-                            <input
-                                name="preco"
-                                type="number"
-                                placeholder="Preço"
-                                value={formData.preco}
-                                onChange={handleInputChange}
-                                className={style.input}
-                            />
-                            <label className={style.campoNomes}>Cidade: </label>
-                            <input
-                                name="cidade"
-                                placeholder="Cidade"
-                                value={formData.cidade}
-                                onChange={handleInputChange}
-                                className={style.input}
-                            />
-                            <label className={style.campoNomes}>Estado: </label>
-                            <input
-                                name="estado"
-                                placeholder="Estado"
-                                value={formData.estado}
-                                onChange={handleInputChange}
-                                className={style.input}
-                            />
+                        <label className={style.campoNomes}>Nome do Quarto:</label>
+                        <input
+                            name="nomeQuarto"
+                            placeholder="Nome do Quarto"
+                            value={formData.nomeQuarto}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
+                        <label className={style.campoNomes}>Descrição: </label>
+                        <textarea
+                            name="descricao"
+                            placeholder="Descrição"
+                            value={formData.descricao}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
+                        <label className={style.campoNomes}>Preço: </label>
+                        <input
+                            name="preco"
+                            type="number"
+                            placeholder="Preço"
+                            value={formData.preco}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
+                        <label className={style.campoNomes}>Cidade: </label>
+                        <input
+                            name="cidade"
+                            placeholder="Cidade"
+                            value={formData.cidade}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
+                        <label className={style.campoNomes}>Estado: </label>
+                        <input
+                            name="estado"
+                            placeholder="Estado"
+                            value={formData.estado}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
 
-                            <label className={style.campoNomes}>Endereço: </label>
-                            <input
-                                name="endereco"
-                                placeholder="Endereço"
-                                value={formData.endereco}
-                                onChange={handleInputChange}
-                                className={style.input}
-                            />
-                            <label className={style.campoNomes}>Capacidade de Pessoas: </label>
-                            <input
-                                name="capacidadePessoas"
-                                placeholder="Capacidade de Pessoas"
-                                value={formData.capacidadePessoas}
-                                onChange={handleInputChange}
-                                className={style.input}
-                            />
+                        <label className={style.campoNomes}>Endereço: </label>
+                        <input
+                            name="endereco"
+                            placeholder="Endereço"
+                            value={formData.endereco}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
+                        <label className={style.campoNomes}>Capacidade de Pessoas: </label>
+                        <input
+                            name="capacidadePessoas"
+                            placeholder="Capacidade de Pessoas"
+                            value={formData.capacidadePessoas}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
 
-                            <label className={style.campoNomes}>Comodidades: </label>
-                            <textarea
-                                name="comodidades"
-                                placeholder="Comodidades"
-                                value={formData.comodidades}
+                        <label className={style.campoNomes}>Comodidades: </label>
+                        <textarea
+                            name="comodidades"
+                            placeholder="Comodidades"
+                            value={formData.comodidades}
+                            onChange={handleInputChange}
+                            className={style.input}
+                        />
+
+                        <label className={style.campoNomes}>
+                            Disponibilidade:
+                            <input
+                                name="disponibilidade"
+                                type="checkbox"
+                                checked={formData.disponibilidade}
                                 onChange={handleInputChange}
                                 className={style.input}
                             />
-
-                            <label className={style.campoNomes}>
-                                Disponibilidade:
-                                <input
-                                    name="disponibilidade"
-                                    type="checkbox"
-                                    checked={formData.disponibilidade}
-                                    onChange={handleInputChange}
-                                    className={style.input}
-                                />
-                            </label>
-                        </form>
+                        </label>
                         <button className={style.button} onClick={() => setStep(4)}>Continuar</button>
                     </div>
                 )}
