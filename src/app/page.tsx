@@ -34,7 +34,6 @@ export default function TelaInicial() {
 
   const router = useRouter();
 
-  // Função para salvar um novo hóspede
   const salvarHospede = async () => {
     const dados = {
       nome,
@@ -77,7 +76,6 @@ export default function TelaInicial() {
 
   const handleCardClose = () => setActiveCard(null);
 
-  // Função para buscar todos os hotéis (listagem inicial)
   const buscarHoteis = async () => {
     try {
       const response = await fetch("https://localhost:7274/api/Quarto/ListarQuartos", {
@@ -97,10 +95,21 @@ export default function TelaInicial() {
     }
   };
 
-  // Carrega todos os hotéis ao montar o componente
+  // Carrega todos os hotéis inicialmente
   useEffect(() => {
-    buscarHoteis();
-  }, []);
+    const nenhumFiltroAplicado =
+      !nomeQuarto.trim() &&
+      (precoMinimo === null || isNaN(precoMinimo)) &&
+      (precoMaximo === null || isNaN(precoMaximo)) &&
+      (capacidadePessoas === null || isNaN(capacidadePessoas)) &&
+      !cidade.trim() &&
+      !estado.trim();
+
+    if (nenhumFiltroAplicado) {
+      // Se todos os filtros foram removidos, carrega todos os hotéis novamente
+      buscarHoteis();
+    }
+  }, [nomeQuarto, precoMinimo, precoMaximo, capacidadePessoas, cidade, estado]);
 
   const loginHospede = async () => {
     try {
@@ -142,34 +151,77 @@ export default function TelaInicial() {
     router.push("/");
   };
 
-  // Função para aplicar filtros
+  interface Quarto {
+    id: number;
+    nomeQuarto: string;
+    descricao: string;
+    preco: number;
+    capacidadePessoas: number;
+  }
+
+  const dados: Quarto[] = [ /* array retornado */];
+
   const aplicarFiltros = async () => {
     const params = new URLSearchParams();
 
-    if (nomeQuarto) params.append("NomeQuarto", nomeQuarto);
+    if (nomeQuarto.trim()) params.append("NomeQuarto", nomeQuarto);
     if (precoMinimo !== null && !isNaN(precoMinimo)) params.append("PrecoMinimo", precoMinimo.toString());
     if (precoMaximo !== null && !isNaN(precoMaximo)) params.append("PrecoMaximo", precoMaximo.toString());
     if (capacidadePessoas !== null && !isNaN(capacidadePessoas)) params.append("CapacidadePessoas", capacidadePessoas.toString());
-    if (cidade) params.append("Cidade", cidade);
-    if (estado) params.append("Estado", estado);
+    if (cidade.trim()) params.append("Cidade", cidade);
+    if (estado.trim()) params.append("Estado", estado);
 
-    const url = `https://localhost:7274/filtros/filtroQuarto?${params.toString()}`;
+    const url = `https://localhost:7274/filtro/FiltroQuarto?${params.toString()}`;
+    console.log("URL da requisição:", url);
 
     try {
       const response = await fetch(url, {
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+
+      console.log("Resposta da API:", response);
 
       if (response.ok) {
         const data = await response.json();
-        setHoteisFiltrados(data.dados || []);
+        console.log("Dados recebidos:", data);
+
+        if (data && Array.isArray(data)) {
+          setHoteisFiltrados(data);
+        } else {
+          console.error("Formato inesperado dos dados:", data);
+          setHoteisFiltrados([]);
+          setErrorMessage("Formato de resposta inválido da API.");
+        }
       } else {
-        console.error("Erro na resposta da API de filtros:", response.statusText);
-        setErrorMessage("Erro ao buscar hotéis filtrados.");
+        console.error("Erro na resposta da API:", response.status, response.statusText);
+        setErrorMessage(`Erro ao buscar hotéis filtrados: ${response.statusText}`);
+        setHoteisFiltrados([]);
       }
     } catch (error) {
       console.error("Erro na requisição de filtros:", error);
-      setErrorMessage("Erro ao buscar hotéis filtrados.");
+      setErrorMessage("Não foi possível conectar ao servidor.");
+      setHoteisFiltrados([]);
+    }
+  };
+
+  const handleFiltrar = () => {
+    // Verifica se nenhum filtro foi preenchido
+    if (
+      !nomeQuarto.trim() &&
+      (precoMinimo === null || isNaN(precoMinimo)) &&
+      (precoMaximo === null || isNaN(precoMaximo)) &&
+      (capacidadePessoas === null || isNaN(capacidadePessoas)) &&
+      !cidade.trim() &&
+      !estado.trim()
+    ) {
+      // Nenhum filtro preenchido, busca todos os hotéis
+      buscarHoteis();
+    } else {
+      // Algum filtro foi preenchido, aplica filtros
+      aplicarFiltros();
     }
   };
 
@@ -186,6 +238,10 @@ export default function TelaInicial() {
   const handleCapacidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = parseInt(e.target.value, 10);
     setCapacidadePessoas(isNaN(valor) ? null : valor);
+  };
+
+  const handleCardClick = (hotelId: number) => {
+    router.push(`/telaReserva?id=${hotelId}`);
   };
 
   return (
@@ -392,31 +448,32 @@ export default function TelaInicial() {
             />
           </div>
 
-          <button onClick={aplicarFiltros}>Filtrar</button>
+          <button onClick={handleFiltrar}>Filtrar</button>
         </aside>
 
         <section className={style.resultados}>
           <h2>Resultados da Busca</h2>
 
-          {hoteisFiltrados && hoteisFiltrados.length > 0 ? (
-            hoteisFiltrados.map((quarto) => (
-              <div key={quarto.id} className={style.cardHotel}>
-                <Image
-                  src={quarto.imagem ? `data:image/jpeg;base64,${quarto.imagem}` : "/hotel-exemplo.jpg"}
-                  alt={quarto.nomeQuarto}
-                  width={200}
-                  height={150}
-                  style={{ objectFit: "cover" }}
-                />
-                <div className={style.informacoesHotel}>
-                  <p>{quarto.nomeQuarto}</p>
-                  <p>Endereço: {quarto.endereco}</p>
-                  <p>Preço: R$ {quarto.preco}/noite</p>
-                </div>
+          {hoteisFiltrados && hoteisFiltrados.length === 0 ? (
+            <p className={style.nenhumResultado}>
+              Nenhum hotel encontrado.
+            </p>
+          ) : (
+            hoteisFiltrados.map((hotel, index) => (
+              <div key={index} className={style.cardHotel} onClick={() => handleCardClick(hotel.id)} // Ao clicar no card, redireciona para página de reserva
+                style={{ cursor: "pointer" }}>
+                <h3>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
+                <p>Descrição: {hotel.descricao || "Descrição não disponível"}</p>
+                <p>Preço: R$ {hotel.preco || "Não disponível"}</p>
+                <p>Capacidade: {hotel.capacidadePessoas || "Não especificado"} pessoas</p>
+                <p>Cidade: {hotel.cidade || "Cidade não informada"}</p>
+                <p>Estado: {hotel.estado || "Estado não informado"}</p>
+                <p>Endereço: {hotel.endereco || "Endereço não informado"}</p>
+                <p>Comodidades: {hotel.comodidades || "Comodidades não informadas"}</p>
+                <p>Disponibilidade: {hotel.disponibilidade ? "Disponível" : "Indisponível"}</p>
+                <p>Dono ID: {hotel.donoId || "Não informado"}</p>
               </div>
             ))
-          ) : (
-            <p className={style.nenhumResultado}>Nenhum hotel encontrado.</p>
           )}
         </section>
       </div>
