@@ -65,8 +65,13 @@ export default function TelaPerfil() {
 
   const fetchUserData = async () => {
     try {
-      const idHospede = "id_do_usuario"; 
-      const response = await fetch(`http://localhost:7274/api/Hospede/EditarHospede/${idHospede}`);
+      const idHospede = "id"; //PROBLEMA EM TRAZER O ID DO HOSPEDE tem q fazer um requisicao do user atual
+      const response = await fetch(`https://localhost:7274/api/Hospede/BuscarHospede/${idHospede}`, {
+        method: 'GET', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error('Erro ao buscar dados do usuário');
@@ -123,7 +128,7 @@ export default function TelaPerfil() {
     if (valid) {
       try {
         const idHospede = "id_do_usuario";
-        const response = await fetch(`http://localhost:7274/api/Hospede/EditarHospede/${idHospede}`, {
+        const response = await fetch(`https://localhost:7274/api/Hospede/EditarHospede/${idHospede}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

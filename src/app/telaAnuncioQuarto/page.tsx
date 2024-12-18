@@ -21,7 +21,7 @@ export default function TelaAnuncioQuarto() {
         estado: "",
         cidade: "",
         donoId: 1,
-        image: null as string | null,
+        image: null,
     });
 
     const router = useRouter();
@@ -88,6 +88,30 @@ export default function TelaAnuncioQuarto() {
                 console.error("Erro no servidor:", errorData);
                 return;
             }
+          
+          if (formData.capacidadePessoas <= 0) {
+              alert("A capacidade de pessoas deve ser um valor positivo.");
+              return;
+          }
+        
+        const formDataToSend = new FormData();
+
+        // Adiciona os campos de texto
+        formDataToSend.append('nomeQuarto', formData.nomeQuarto);
+        formDataToSend.append('descricao', formData.descricao);
+        formDataToSend.append('preco', formData.preco.toString());
+        formDataToSend.append('capacidadePessoas', formData.capacidadePessoas.toString());
+        formDataToSend.append('disponibilidade', formData.disponibilidade.toString());
+        formDataToSend.append('comodidades', formData.comodidades);
+        formDataToSend.append('endereco', formData.endereco);
+        formDataToSend.append('estado', formData.estado);
+        formDataToSend.append('cidade', formData.cidade);
+        formDataToSend.append('donoId', formData.donoId.toString());
+
+        const response = await fetch('https://localhost:7274/api/Quarto/CriarQuarto', {
+            method: 'POST',
+            body: formDataToSend,
+        })
     
             const data = await response.json();
 
