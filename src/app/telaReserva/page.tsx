@@ -1,22 +1,47 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import style from "../../app/telaReserva/page.module.scss";
+import { useSearchParams } from "next/navigation";
+import style from "./page.module.scss";
 import Imagem from "@/app/telaReserva/a.jpeg";
 
 const RoomReservation = () => {
     const [slideIndex, setSlideIndex] = useState(0);
     const images = [Imagem, Imagem, Imagem];
 
+    const searchParams = useSearchParams();
+    const roomId = searchParams.get("id"); // pega o id do quarto da URL
+
+    const [quarto, setQuarto] = useState<any>(null);
+
+    useEffect(() => {
+        if (roomId) {
+            fetchQuarto(roomId);
+        }
+    }, [roomId]);
+
+    const fetchQuarto = async (id: string) => {
+        try {
+            const response = await fetch(`https://localhost:7274/api/Quarto/ListarQuartos?id=${id}`);
+            if (response.ok) {
+                const data = await response.json();
+                setQuarto(data);
+            } else {
+                console.error("Erro ao obter dados do quarto:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Erro na requisição do quarto:", error);
+        }
+    };
+
     useEffect(() => {
         const interval = setInterval(() => {
             moveSlide(1);
         }, 3000);
-
         return () => clearInterval(interval);
     }, []);
 
-    const moveSlide = (step) => {
+    const moveSlide = (step: number) => {
         setSlideIndex((prevIndex) => {
             const newIndex = prevIndex + step;
             if (newIndex >= images.length) return 0; 
@@ -46,7 +71,6 @@ const RoomReservation = () => {
                                 width={250}  
                                 height={250}  
                             />
-
                         </div>
                     ))}
                 </div>
@@ -84,33 +108,39 @@ const RoomReservation = () => {
                 </button>
             </div>
 
+            {quarto ? (
+                <>
+                    <div className={style.info}>
+                        <p><strong>Nome do Quarto:</strong> {quarto.nomeQuarto}</p>
+                        <p><strong>Quantidade de cômodos:</strong> {quarto.capacidadePessoas}</p>
+                        <p><strong>Localização:</strong> {quarto.endereco} - {quarto.cidade}/{quarto.estado}</p>
+                        <p><strong>Preço por noite:</strong> R$ {quarto.preco}</p>
+                        <p><strong>Forma de pagamento:</strong> Cartão de Crédito, Pix, Dinheiro</p>
+                    </div>
 
-            <div className={style.info}>
-                <p><strong>Quantidade de cômodos:</strong> 3</p>
-                <p><strong>Localização:</strong> Rua Exemplo, nº 123, Bairro Centro</p>
-                <p><strong>Preço por noite:</strong> R$ 150,00</p>
-                <p><strong>Forma de pagamento:</strong> Cartão de Crédito, Pix, Dinheiro</p>
-            </div>
+                    <div className={style.description}>
+                        <p><strong>Descrição do Quarto:</strong> {quarto.descricao}</p>
+                        <p><strong>Contato:</strong> (44) 99999-9999</p>
+                    </div>
 
-            <div className={style.description}>
-                <p><strong>Descrição do Inquilino:</strong> Quarto mobiliado, com ótima iluminação natural, ideal para estudantes ou profissionais.</p>
-                <p><strong>Contato:</strong> (44) 99999-9999</p>
-            </div>
+                    <div className={style.rating}>
+                        <p><strong>Avaliação:</strong> ⭐⭐⭐⭐☆ (4/5)</p>
+                    </div>
 
-            <div className={style.rating}>
-                <p><strong>Avaliação:</strong> ⭐⭐⭐⭐☆ (4/5)</p>
-            </div>
-
-            <div className={style.map}>
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=... (seu link do Google Maps)"
-                    width="100%"
-                    height="300"
-                    style={{ border: "0" }}
-                    loading="lazy"
-                    title="Localização"
-                ></iframe>
-            </div>
+                    <div className={style.map}>
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=..."
+                            width="100%"
+                            height="300"
+                            style={{ border: "0" }}
+                            loading="lazy"
+                            title="Localização"
+                        ></iframe>
+                    </div>
+                </>
+            ) : (
+                <p>Carregando dados do quarto...</p>
+            )}
         </div>
     );
 };

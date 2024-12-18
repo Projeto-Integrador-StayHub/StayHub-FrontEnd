@@ -131,7 +131,7 @@ export default function TelaInicial() {
         setIsLogged(true);
         setErrorMessage("Login realizado com sucesso!");
         setActiveCard(null);
-        router.push("/telaPerfil");
+        //router.push("/telaPerfil");
       } else {
         const error = await response.json();
         setErrorMessage(error.message || "Erro ao realizar login");
@@ -238,6 +238,10 @@ export default function TelaInicial() {
   const handleCapacidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = parseInt(e.target.value, 10);
     setCapacidadePessoas(isNaN(valor) ? null : valor);
+  };
+
+  const handleCardClick = (hotelId: number) => {
+    router.push(`/telaReserva?id=${hotelId}`);
   };
 
   return (
@@ -456,7 +460,8 @@ export default function TelaInicial() {
             </p>
           ) : (
             hoteisFiltrados.map((hotel, index) => (
-              <div key={index} className={style.cardHotel}>
+              <div key={index} className={style.cardHotel} onClick={() => handleCardClick(hotel.id)} // Ao clicar no card, redireciona para página de reserva
+                style={{ cursor: "pointer" }}>
                 <h3>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
                 <p>Descrição: {hotel.descricao || "Descrição não disponível"}</p>
                 <p>Preço: R$ {hotel.preco || "Não disponível"}</p>
