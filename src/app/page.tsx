@@ -462,16 +462,16 @@ export default function TelaInicial() {
             hoteisFiltrados.map((hotel, index) => (
               <div key={index} className={style.cardHotel} onClick={() => handleCardClick(hotel.id)} // Ao clicar no card, redireciona para página de reserva
                 style={{ cursor: "pointer" }}>
-                <h3>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
-                <p>Descrição: {hotel.descricao || "Descrição não disponível"}</p>
-                <p>Preço: R$ {hotel.preco || "Não disponível"}</p>
-                <p>Capacidade: {hotel.capacidadePessoas || "Não especificado"} pessoas</p>
-                <p>Cidade: {hotel.cidade || "Cidade não informada"}</p>
-                <p>Estado: {hotel.estado || "Estado não informado"}</p>
-                <p>Endereço: {hotel.endereco || "Endereço não informado"}</p>
-                <p>Comodidades: {hotel.comodidades || "Comodidades não informadas"}</p>
-                <p>Disponibilidade: {hotel.disponibilidade ? "Disponível" : "Indisponível"}</p>
-                <p>Dono ID: {hotel.donoId || "Não informado"}</p>
+                <h3 className={style.indisponivelNome}>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
+                <p className={style.campo}>Descrição: {hotel.descricao || "Descrição não disponível"}</p>
+                <p className={style.campo}>Preço: R$ {hotel.preco || "Não disponível"}</p>
+                <p className={style.campo}>Capacidade: {hotel.capacidadePessoas || "Não especificado"} pessoas</p>
+                <p className={style.campo}>Cidade: {hotel.cidade || "Cidade não informada"}</p>
+                <p className={style.campo}>Estado: {hotel.estado || "Estado não informado"}</p>
+                <p className={style.campo}>Endereço: {hotel.endereco || "Endereço não informado"}</p>
+                <p className={style.campo}>Comodidades: {hotel.comodidades || "Comodidades não informadas"}</p>
+                <p className={style.campo}>Disponibilidade: {hotel.disponibilidade ? "Disponível" : "Indisponível"}</p>
+                <p className={style.campo}>Dono ID: {hotel.donoId || "Não informado"}</p>
               </div>
             ))
           )}
