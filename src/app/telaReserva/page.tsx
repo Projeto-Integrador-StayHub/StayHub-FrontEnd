@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api";
 import style from "./page.module.scss";
 import Imagem from "@/app/telaReserva/a.jpeg";
 
@@ -10,29 +11,52 @@ const RoomReservation = () => {
     const images = [Imagem, Imagem, Imagem];
 
     const searchParams = useSearchParams();
-    const roomId = searchParams.get("id"); // pega o id do quarto da URL
+    const roomId = useMemo(() => searchParams.get("id"), []);
 
     const [quarto, setQuarto] = useState<any>(null);
+    const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {
         if (roomId) {
-            fetchQuarto(roomId);
+            fetchQuarto();
         }
     }, [roomId]);
 
-    const fetchQuarto = async (id: string) => {
+    const fetchQuarto = useCallback(async () => {
         try {
-            const response = await fetch(`https://localhost:7274/api/Quarto/ListarQuartos?id=${id}`);
-            if (response.ok) {
-                const data = await response.json();
-                setQuarto(data);
-            } else {
-                console.error("Erro ao obter dados do quarto:", response.statusText);
+            const response = await fetch(`https://localhost:7274/api/Quarto/BuscarQuartoId/${roomId}`);
+            const data = await response.json();
+            const dados = data.dados;
+
+            if (dados.cidade && dados.estado) {
+                const geocodeResponse = await fetch(
+                    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+                        `${dados.cidade}, ${dados.estado}`
+                    )}&key=AIzaSyDj6VdgOwBD9nyoOk0kIQxGT4vMCg-7kkA`
+                );
+                const geocodeData = await geocodeResponse.json();
+                if (geocodeData.results && geocodeData.results.length > 0) {
+                    const location = geocodeData.results[0].geometry.location;
+                    setCoordinates({ lat: location.lat, lng: location.lng });
+                }
             }
+            console.log(dados);
+            setQuarto({
+                nomeQuarto: dados.nomeQuarto || "Não disponível",
+                capacidadePessoas: dados.capacidadePessoas || "Não especificado",
+                endereco: dados.endereco || "",
+                cidade: dados.cidade || "",
+                estado: dados.estado || "",
+                preco: dados.preco || null,
+                comodidades: dados.comodidades || "Não especificado",
+                disponibilidade: dados.disponibilidade || false,
+                descricao: dados.descricao || "Sem descrição",
+                dono: dados.dono || { nome: "Não informado", telefone: "(44) 99999-9999" },
+            });
         } catch (error) {
             console.error("Erro na requisição do quarto:", error);
         }
-    };
+    }, [roomId]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -44,8 +68,8 @@ const RoomReservation = () => {
     const moveSlide = (step: number) => {
         setSlideIndex((prevIndex) => {
             const newIndex = prevIndex + step;
-            if (newIndex >= images.length) return 0; 
-            if (newIndex < 0) return images.length - 1; 
+            if (newIndex >= images.length) return 0;
+            if (newIndex < 0) return images.length - 1;
             return newIndex;
         });
     };
@@ -54,7 +78,7 @@ const RoomReservation = () => {
         <div className={style.container}>
             <h1 className={style.title}>Reserva de Quarto</h1>
 
-            <div className={style.carouselContainer} style={{ position: "relative", overflow: "hidden" }}>
+            <div className={style.carouselContainer}>
                 <div
                     className={style.carousel}
                     style={{
@@ -64,78 +88,45 @@ const RoomReservation = () => {
                     }}
                 >
                     {images.map((image, index) => (
-                        <div key={index} className={style.carouselItem} style={{ Width: "100%" }}>
-                            <Image
-                                src={image}
-                                alt={`Imagem ${index + 1}`}
-                                width={250}  
-                                height={250}  
-                            />
+                        <div key={index} className={style.carouselItem}>
+                            <Image src={image} alt={`Imagem ${index + 1}`} width={250} height={250} />
                         </div>
                     ))}
                 </div>
-                <button
-                    className={style.prev}
-                    onClick={() => moveSlide(-1)}
-                    style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "2px",
-                        transform: "translateY(-50%)",
-                        background: "rgba(0, 0, 0, 0.5)",
-                        color: "white",
-                        border: "none",
-                        padding: "10px"
-                    }}
-                >
-                    &#10094;
-                </button>
-                <button
-                    className={style.next}
-                    onClick={() => moveSlide(1)}
-                    style={{
-                        position: "absolute",
-                        top: "50%",
-                        right: "2px",
-                        transform: "translateY(-50%)",
-                        background: "rgba(0, 0, 0, 0.5)",
-                        color: "white",
-                        border: "none",
-                        padding: "10px"
-                    }}
-                >
-                    &#10095;
-                </button>
             </div>
 
             {quarto ? (
                 <>
                     <div className={style.info}>
                         <p><strong>Nome do Quarto:</strong> {quarto.nomeQuarto}</p>
-                        <p><strong>Quantidade de cômodos:</strong> {quarto.capacidadePessoas}</p>
-                        <p><strong>Localização:</strong> {quarto.endereco} - {quarto.cidade}/{quarto.estado}</p>
-                        <p><strong>Preço por noite:</strong> R$ {quarto.preco}</p>
-                        <p><strong>Forma de pagamento:</strong> Cartão de Crédito, Pix, Dinheiro</p>
+                        <p><strong>Capacidade de Pessoas:</strong> {quarto.capacidadePessoas}</p>
+                        <p><strong>Localização:</strong> 
+                            {quarto.endereco && quarto.cidade && quarto.estado
+                                ? `${quarto.endereco}, ${quarto.cidade} - ${quarto.estado}`
+                                : "Localização não informada"}
+                        </p>
+                        <p><strong>Preço por noite:</strong> R$ {quarto.preco ? quarto.preco.toFixed(2) : "Não informado"}</p>
+                        <p><strong>Comodidades:</strong> {quarto.comodidades}</p>
                     </div>
 
-                    <div className={style.description}>
-                        <p><strong>Descrição do Quarto:</strong> {quarto.descricao}</p>
-                        <p><strong>Contato:</strong> (44) 99999-9999</p>
-                    </div>
-
-                    <div className={style.rating}>
-                        <p><strong>Avaliação:</strong> ⭐⭐⭐⭐☆ (4/5)</p>
-                    </div>
-
-                    <div className={style.map}>
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=..."
-                            width="100%"
-                            height="300"
-                            style={{ border: "0" }}
-                            loading="lazy"
-                            title="Localização"
-                        ></iframe>
+                    <div className={style.mapContainer}>
+                        <h2>Localização no Mapa</h2>
+                        {coordinates ? (
+                            <LoadScript googleMapsApiKey="AIzaSyDj6VdgOwBD9nyoOk0kIQxGT4vMCg-7kkA">
+                                <GoogleMap
+                                    mapContainerStyle={{
+                                        width: "100%",
+                                        height: "400px",
+                                    }}
+                                    center={coordinates}
+                                    zoom={14}
+                                >
+                                    <Marker position={coordinates} />
+                                </GoogleMap>
+                            </LoadScript>
+                        ) : (
+                            <p>Carregando mapa...</p>
+                        )}
                     </div>
                 </>
             ) : (
