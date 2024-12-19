@@ -50,12 +50,13 @@ const AdminPanel = () => {
                     "Content-Type": "application/json",
                 },
             });
-
+    
             if (response.ok) {
                 const data = await response.json();
                 setUsers(data.dados);
-                const error = await response.json();
-                setErrorMessage(error.message || "Erro ao listar usuários");
+            } else {
+                const errorData = await response.json();
+                setErrorMessage(errorData.message || "Erro ao listar usuários");
             }
         } catch (error) {
             console.error("Erro na requisição:", error);
