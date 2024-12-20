@@ -22,8 +22,16 @@ const formatBirthDate = (date: string) => {
   return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`;
 };
 
+interface UserData {
+  nomecompleto: string;
+  email: string;
+  telefone: string;
+  cpf: string;
+  nascimento: string;
+}
+
 export default function TelaPerfil() {
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<UserData>({
     nomecompleto: "",
     email: "",
     telefone: "",
@@ -47,7 +55,7 @@ export default function TelaPerfil() {
           },
         }
       );
-
+      
       if (!response.ok) {
         throw new Error("Erro ao buscar dados do usuário");
       }
@@ -143,7 +151,7 @@ export default function TelaPerfil() {
       <div className={style.container}>
         <div className={style.rightColumn}>
           {["Nome Completo", "E-mail", "Telefone", "CPF", "Data de Nascimento"].map((label, index) => {
-            const field = label.toLowerCase().replace(/ /g, "");
+            const field = label.toLowerCase().replace(/ /g, "") as keyof UserData;
             return (
               <div className={style.formGroup} key={index}>
                 <label className={style.label}>{label}:</label>

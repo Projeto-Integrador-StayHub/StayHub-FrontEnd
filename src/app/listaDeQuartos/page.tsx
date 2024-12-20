@@ -26,18 +26,22 @@ export default function ListaDeQuartos() {
             try {
                 const response = await fetch("https://localhost:7274/api/Quarto/ListarQuartos");
 
+
                 const data = await response.json();
 
                 if (data.status && data.dados) {
                     setQuartos(data.dados);
+                if (data.status && data.dados) {
+                    setQuartos(data.dados);
                 } else {
                     console.error("Erro ao buscar os quartos:", data.mensagem || "Resposta inválida");
+                    console.error("Erro ao buscar os quartos:", data.mensagem || "Resposta inválida");
                 }
-            } catch (error) {
-                console.error("Erro ao realizar a requisição:", error);
             }
-        };
-
+        } catch (error) {
+            console.log("Erro ao realizar a requisição:");
+        }
+    };
         fetchQuartos();
     }, []);
 

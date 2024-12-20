@@ -378,63 +378,63 @@ const AdminPanel = () => {
     };
 
 
-    const handleSaveAvaliacaoEdit = async (updatedAvaliacao: Avaliacao) => {
-        try {
-            const response = await fetch(
-                `https://localhost:7274/api/Avaliacao/EditarAvaliacao/${updatedAvaliacao.id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(updatedAvaliacao),
-                }
-            );
+    // const handleSaveAvaliacaoEdit = async (updatedAvaliacao: Avaliacao) => {
+    //     try {
+    //         const response = await fetch(
+    //             `https://localhost:7274/api/Avaliacao/EditarAvaliacao/${updatedAvaliacao.id}`,
+    //             {
+    //                 method: "PUT",
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                 },
+    //                 body: JSON.stringify(updatedAvaliacao),
+    //             }
+    //         );
 
-            if (response.ok) {
-                setAvaliacoes(
-                    avaliacoes.map((avaliacao) =>
-                        avaliacao.id === updatedAvaliacao.id ? updatedAvaliacao : avaliacao
-                    )
-                );
-                setIsEditingAvaliacao(false);
-                setEditAvaliacao(null);
-            } else {
-                const error = await response.json();
-                setErrorMessage(error.message || "Erro ao editar avaliação");
-            }
-        } catch (error) {
-            console.error("Erro na requisição:", error);
-            setErrorMessage("Não foi possível atualizar a avaliação.");
-        }
-    };
+    //         if (response.ok) {
+    //             setAvaliacoes(
+    //                 avaliacoes.map((avaliacao) =>
+    //                     avaliacao.id === updatedAvaliacao.id ? updatedAvaliacao : avaliacao
+    //                 )
+    //             );
+    //             setIsEditingAvaliacao(false);
+    //             setEditAvaliacao(null);
+    //         } else {
+    //             const error = await response.json();
+    //             setErrorMessage(error.message || "Erro ao editar avaliação");
+    //         }
+    //     } catch (error) {
+    //         console.error("Erro na requisição:", error);
+    //         setErrorMessage("Não foi possível atualizar a avaliação.");
+    //     }
+    // };
 
 
 
-    const handleDeleteAvaliacao = async (id: number) => {
-        if (confirm("Tem certeza que deseja excluir esta avaliação?")) {
-            try {
-                const response = await fetch(
-                    `https://localhost:7274/api/Avaliacao/ExcluirAvaliacao/${id}`,
-                    {
-                        method: "DELETE",
-                        headers: { "Content-Type": "application/json" },
-                    }
-                );
+    // const handleDeleteAvaliacao = async (id: number) => {
+    //     if (confirm("Tem certeza que deseja excluir esta avaliação?")) {
+    //         try {
+    //             const response = await fetch(
+    //                 `https://localhost:7274/api/Avaliacao/ExcluirAvaliacao/${id}`,
+    //                 {
+    //                     method: "DELETE",
+    //                     headers: { "Content-Type": "application/json" },
+    //                 }
+    //             );
 
-                if (response.ok) {
-                    setAvaliacoes(avaliacoes.filter((avaliacao) => avaliacao.id !== id));
-                    alert("Avaliação excluída com sucesso!");
-                } else {
-                    const error = await response.json();
-                    setErrorMessage(error.message || "Erro ao excluir avaliação");
-                }
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-                setErrorMessage("Não foi possível conectar ao servidor.");
-            }
-        }
-    };
+    //             if (response.ok) {
+    //                 setAvaliacoes(avaliacoes.filter((avaliacao) => avaliacao.id !== id));
+    //                 alert("Avaliação excluída com sucesso!");
+    //             } else {
+    //                 const error = await response.json();
+    //                 setErrorMessage(error.message || "Erro ao excluir avaliação");
+    //             }
+    //         } catch (error) {
+    //             console.error("Erro na requisição:", error);
+    //             setErrorMessage("Não foi possível conectar ao servidor.");
+    //         }
+    //     }
+    // };
 
 
     useEffect(() => {
@@ -461,6 +461,19 @@ const AdminPanel = () => {
         setIsEditing(true);
     };
 
+  const handleSaveEditDonos = (owner: any) => {
+    setEditUser(owner);
+    setIsEditing(true);
+  };
+
+  const handleEditQuarto = (quarto: any) => {
+    if (!quarto) {
+      setErrorMessage("dados nao encontrados para edição");
+      return
+    }
+    // setEditQuarto(quarto);
+    setIsEditing(true);
+  };
 
     return (
         <main className={style.adminContainer}>
@@ -524,7 +537,7 @@ const AdminPanel = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5">Nenhum usuário encontrado.</td>
+                                    {/* <td colSpan="5">Nenhum usuário encontrado.</td> */}
                                 </tr>
                             )}
                         </tbody>
@@ -580,7 +593,7 @@ const AdminPanel = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5">Nenhum dono encontrado.</td>
+                                    {/* <td colSpan="5">Nenhum dono encontrado.</td> */}
                                 </tr>
                             )}
                         </tbody>
@@ -637,7 +650,7 @@ const AdminPanel = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5">Nenhuma reserva encontrada.</td>
+                                    {/* <td colSpan="5">Nenhuma reserva encontrada.</td> */}
                                 </tr>
                             )}
                         </tbody>
@@ -694,7 +707,7 @@ const AdminPanel = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4">Nenhum quarto encontrado.</td>
+                                    {/* <td colSpan="4">Nenhum quarto encontrado.</td> */}
                                 </tr>
                             )}
                         </tbody>
@@ -714,21 +727,21 @@ const AdminPanel = () => {
 
                     {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-                    <table className={style.adminTable}>
+                    {/* <table className={style.adminTable}>
                         <thead>
                             <tr>
                                 <th>Avaliação</th>
                                 <th>Descrição</th>
                                 <th>Ações</th>
                             </tr>
-                        </thead>
-                        <tbody>
+                        </thead> */}
+                        {/* <tbody>
                             {avaliacoes.length > 0 ? (
                                 avaliacoes.map((avaliacao) => (
-                                    <tr key={avaliacao.id}>
-                                        <td>{avaliacao.avaliacao}</td>
-                                        <td>{avaliacao.descricao}</td>
-                                        <td>
+                                    <tr key={avaliacao.id}> */}
+                                        {/* <td>{avaliacao.avaliacao}</td>
+                                        <td>{avaliacao.descricao}</td> */}
+                                        {/* <td>
                                             <button
                                                 className={style.editButton}
                                                 onClick={() => {
@@ -740,20 +753,20 @@ const AdminPanel = () => {
                                             </button>
                                             <button
                                                 className={style.deleteButton}
-                                                onClick={() => handleDeleteAvaliacao(avaliacao.id)}
-                                            >
-                                                Excluir
+                                                // onClick={() => handleDeleteAvaliacao(avaliacao.id)}
+                                            > */}
+                                                {/* Excluir
                                             </button>
                                         </td>
                                     </tr>
                                 ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="3">Nenhuma avaliação encontrada.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                            ) : ( */}
+                                {/* <tr> */}
+                                    {/* <td colSpan="3">Nenhuma avaliação encontrada.</td> */}
+                                {/* </tr> */}
+                            {/* )} */}
+                        {/* </tbody> */}
+                    {/* </table> */}
                 </TabPanel>
 
             </Tabs>
@@ -785,7 +798,7 @@ const AdminPanel = () => {
                     {isEditingAvaliacao && (
                         <EditAvaliacaoModal
                             avaliacao={editAvaliacao}
-                            onSave={handleSaveAvaliacaoEdit}
+                            // onSave={handleSaveAvaliacaoEdit}
                             onCancel={() => {
                                 setIsEditingAvaliacao(false);
                                 setEditAvaliacao(null);
@@ -801,13 +814,13 @@ const AdminPanel = () => {
 
 
 const EditModal = ({ user, onSave, onCancel }: any) => {
-    const [name, setName] = useState(user.nome);
-    const [email, setEmail] = useState(user.email);
-    const [cpf, setCpf] = useState(user.cpf);
-    const [telefone, setTelefone] = useState(user.telefone);
-    const [nascimento, setNascimento] = useState(user.nascimento);
-    const [senha, setSenha] = useState(user.senha);
-    const [endereco, setendereco] = useState(user.endereco);
+  const [name, setName] = useState(user.nome);
+  const [email, setEmail] = useState(user.email);
+  const [cpf, setCpf] = useState(user.cpf);
+  const [telefone, setTelefone] = useState(user.telefone);
+  const [nascimento, setNascimento] = useState(user.nascimento);
+  const [senha, setSenha] = useState(user.senha);
+  const [endereco, setendereco] = useState(user.endereco);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
