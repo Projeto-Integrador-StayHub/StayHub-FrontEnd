@@ -1,0 +1,105 @@
+.containerPagamento {
+    font-family: 'Roboto', sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 70vh; 
+}
+.container{
+    border: 1px solid #ddd;
+    // border-radius: 8px;
+    width: 300px;
+    padding: 100px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tituloPagamento {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.resumoPagamento {
+    margin-bottom: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #555;
+}
+
+.metodosPagamento {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.metodosPagamento h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.metodosPagamento label {
+    display: block;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.botaoPagamento {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.botaoPagamento:hover {
+    background-color: #0056b3;
+}
+
+.confirmationCard {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 500px;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: left;
+}
+
+.confirmationCard h2, .confirmationCard h3 {
+    color: #333;
+}
+
+.confirmationCard p {
+    margin: 10px 0;
+    color: #555;
+}
+
+.confirmationCard p strong {
+    color: #000;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}

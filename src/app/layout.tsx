@@ -7,6 +7,7 @@ import TelaAnuncio from "../app/telaAnuncio/page";
 import TelaPerfil from "../app/telaPerfil/page";
 import TelaAnuncioQuarto from "../app/telaAnuncioQuarto/page";
 import ListaQuarto from "../app/listaDeQuartos/page"
+import telaPagamento from "../app/telaPagamento/page";
 export default function RootLayout({
   children,
 }: Readonly<{

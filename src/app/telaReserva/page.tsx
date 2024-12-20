@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api";
 import style from "./page.module.scss";
 import Imagem from "@/app/telaReserva/a.jpeg";
@@ -15,7 +15,8 @@ const RoomReservation = () => {
 
     const [quarto, setQuarto] = useState<any>(null);
     const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-
+    const router = useRouter();
+    const [isReserving, setIsReserving] = useState(false);
     useEffect(() => {
         if (roomId) {
             fetchQuarto();
@@ -73,64 +74,123 @@ const RoomReservation = () => {
             return newIndex;
         });
     };
-
+    const handleReserve = async () => {
+        if (!quarto) return;
+    
+        setIsReserving(true);
+    
+        try {
+            const response = await fetch("https://localhost:7274/api/Reserva/CriarReserva", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    hospedeId: 1,
+                    nome: quarto.nomeQuarto || "",
+                    descricao: quarto.descricao || "Sem descrição",
+                    preco: quarto.preco || 0,
+                    status: 0,
+                    pagamentoStatus: 0,
+                    quartoId: roomId,
+                    cidade: quarto.cidade,
+                    estado: quarto.estado,
+                }),
+            });
+    
+            const data = await response.json();
+    
+            // Log para identificar onde está o ID da reserva
+            console.log("Resposta da API (CriarReserva):", data);
+    
+            // Aqui, ajustamos de acordo com o retorno da API
+            const reservaId = data.dados?.[0]?.id || null; // Supondo que o ID está no primeiro item do array 'dados'
+    
+            console.log("Reserva ID retornado:", reservaId);
+            if (!reservaId) {
+                alert("Erro: reservaId não foi retornado corretamente pela API.");
+                return;
+            }
+    
+            const query = new URLSearchParams({
+                id: reservaId.toString(),
+                nomeQuarto: quarto.nomeQuarto || "",
+                preco: quarto.preco?.toString() || "0",
+                cidade: quarto.cidade || "",
+                estado: quarto.estado || "",
+            }).toString();
+    
+            router.push(`/telaPagamento?${query}`);
+        } catch (error) {
+            console.error("Erro ao processar reserva:", error);
+            alert("Erro ao processar a reserva. Tente novamente mais tarde.");
+        } finally {
+            setIsReserving(false);
+        }
+    };
+    
+    
+    
     return (
         <div className={style.container}>
-            <h1 className={style.title}>Reserva de Quarto</h1>
+            {/* <h1 className={style.title}>Reserva de Quarto</h1> */}
+            {quarto && quarto.comodidades ? (
+                <p className={style.titulo}>{quarto.nomeQuarto}</p>
+            ) : null}
 
-            <div className={style.carouselContainer}>
-                <div
-                    className={style.carousel}
-                    style={{
-                        display: "flex",
-                        transition: "transform 0.5s ease-in-out",
-                        transform: `translateX(-${slideIndex * 100}%)`,
-                    }}
-                >
-                    {images.map((image, index) => (
-                        <div key={index} className={style.carouselItem}>
-                            <Image src={image} alt={`Imagem ${index + 1}`} width={250} height={250} />
-                        </div>
-                    ))}
+            {quarto && (
+                <div className={style.carouselContainer}>
+                    <div className={style.carousel}>
+                        {images.map((image, index) => (
+                            <div key={index} className={style.carouselItem}>
+                                <Image src={image} alt={`Imagem ${index + 1}`} width={450} height={400} />
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )};
 
-            {quarto ? (
-                <>
-                    <div className={style.info}>
-                        <p><strong>Nome do Quarto:</strong> {quarto.nomeQuarto}</p>
-                        <p><strong>Capacidade de Pessoas:</strong> {quarto.capacidadePessoas}</p>
-                        <p><strong>Localização:</strong> 
-                            {quarto.endereco && quarto.cidade && quarto.estado
-                                ? `${quarto.endereco}, ${quarto.cidade} - ${quarto.estado}`
-                                : "Localização não informada"}
+
+            {quarto && (
+                <div className={style.infoContainer}>
+                    <div className={style.cardPreco}>
+                        <p className={style.preco}>
+                            <strong>Preço por Noite: </strong>R${quarto.preco || "0"} / noite
                         </p>
-                        <p><strong>Preço por noite:</strong> R$ {quarto.preco ? quarto.preco.toFixed(2) : "Não informado"}</p>
-                        <p><strong>Comodidades:</strong> {quarto.comodidades}</p>
+                        <button className={style.buttonReservar} onClick={handleReserve}>
+                            Reservar
+                        </button>
                     </div>
+                </div>
+            )}
 
-                    <div className={style.mapContainer}>
-                        <h2>Localização no Mapa</h2>
-                        {coordinates ? (
-                            <LoadScript googleMapsApiKey="AIzaSyDj6VdgOwBD9nyoOk0kIQxGT4vMCg-7kkA">
-                                <GoogleMap
-                                    mapContainerStyle={{
-                                        width: "100%",
-                                        height: "400px",
-                                    }}
-                                    center={coordinates}
-                                    zoom={14}
-                                >
-                                    <Marker position={coordinates} />
-                                </GoogleMap>
-                            </LoadScript>
-                        ) : (
-                            <p>Carregando mapa...</p>
-                        )}
-                    </div>
-                </>
-            ) : (
-                <p>Carregando dados do quarto...</p>
+            {quarto && (
+                <div className={style.cardInfo}>
+                    <h2>Informações gerais:</h2>
+                    <p><strong>Capacidade de Pessoas:</strong> {quarto.capacidadePessoas}</p>
+                    <p><strong>Endereço:</strong> {quarto.endereco}</p>
+                    <p><strong>Cidade:</strong> {quarto.cidade}</p>
+                    <p><strong>Estado:</strong> {quarto.estado}</p>
+                    <p><strong>Comodidade:</strong>{quarto.comodidades}</p>
+                </div>
+            )}
+
+            {quarto && coordinates && (
+                <div className={style.mapContainer}>
+                    <h2>Localização no Mapa</h2>
+                    <LoadScript googleMapsApiKey="AIzaSyDj6VdgOwBD9nyoOk0kIQxGT4vMCg-7kkA">
+                        <GoogleMap
+                            mapContainerStyle={{
+                                width: "100%",
+                                height: "400px",
+                            }}
+                            center={coordinates}
+                            zoom={14}
+                        >
+                            <Marker position={coordinates} />
+                        </GoogleMap>
+                    </LoadScript>
+                </div>
             )}
         </div>
     );
