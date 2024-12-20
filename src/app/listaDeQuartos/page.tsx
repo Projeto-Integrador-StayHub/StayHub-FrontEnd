@@ -56,29 +56,59 @@ export default function ListaDeQuartos() {
             console.error("Erro ao realizar a requisição de exclusão:", error);
         }
     };
+
     const editarQuarto = async (id: number) => {
         try {
+            const quartoToEdit = quartos.find((quarto) => quarto.id === id);
+
+            if (!quartoToEdit) {
+                console.error("Quarto não encontrado.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("id", quartoToEdit.id.toString());
+            formData.append("nomeQuarto", quartoToEdit.nomeQuarto || "");
+            formData.append("descricao", quartoToEdit.descricao || "");
+            formData.append("preco", quartoToEdit.preco ? quartoToEdit.preco.toString() : "0");
+            formData.append("capacidadePessoas", quartoToEdit.capacidadePessoas ? quartoToEdit.capacidadePessoas.toString() : "0");
+            formData.append("disponibilidade", quartoToEdit.disponibilidade ? quartoToEdit.disponibilidade.toString() : "false");
+            formData.append("comodidades", quartoToEdit.comodidades || "");
+            formData.append("endereco", quartoToEdit.endereco || "");
+            formData.append("estado", quartoToEdit.estado || "");
+            formData.append("cidade", quartoToEdit.cidade || "");
+            formData.append("donoId", quartoToEdit.donoId ? quartoToEdit.donoId.toString() : "0");
+
+            if (quartoToEdit.image) {
+                const imageBlob = await fetch(quartoToEdit.image).then((res) => res.blob());
+                formData.append("image", imageBlob, "image.jpg");
+            }
+
             const response = await fetch(`https://localhost:7274/api/Quarto/EditarQuarto/${id}`, {
                 method: "PUT",
+                body: formData,
             });
-            if (response.ok) {
-                setQuartos(quartos.filter((quarto) => quarto.id !== id));
 
+            if (response.ok) {
+                const updatedQuarto = await response.json();
+                setQuartos((prevQuartos) =>
+                    prevQuartos.map((quarto) => (quarto.id === id ? { ...quarto, ...updatedQuarto } : quarto))
+                );
             } else {
-                console.error("Erro ao editar o quarto.");
+                const errorData = await response.json();
+                console.error("Erro ao editar o quarto:", errorData);
             }
         } catch (error) {
-            console.error("Erro ao realizar a requisição de exclusão:", error);
+            console.error("Erro ao realizar a requisição de edição:", error);
         }
-    }
-
+    };
 
     return (
         <div className={style.container}>
             <h2 className={style.seusAnuncios}>Seus Anúncios:</h2>
             <div className={style.quartosList}>
                 {quartos.map((quarto, index) => (
-                    <div className={style.listQuarto} key={index}>
+                    <div className={style.listQuarto} key={quarto.id}>
                         <div className={style.imageContainer}>
                             <Image
                                 src={quarto.image || "/images/default-room.jpg"}
@@ -98,7 +128,6 @@ export default function ListaDeQuartos() {
                             <p className={style.campo}><strong className={style.nomeCampo}>Estado:</strong> {quarto.estado}</p>
                             <p className={style.campo}><strong className={style.nomeCampo}>Preço:</strong> R$ {quarto.preco}</p>
                             <p className={style.campo}><strong className={style.nomeCampo}>Disponível:</strong> {quarto.disponibilidade ? 'Sim' : 'Não'}</p>
-
 
                             <button onClick={() => editarQuarto(quarto.id)} className={style.editarButton}>
                                 Editar
