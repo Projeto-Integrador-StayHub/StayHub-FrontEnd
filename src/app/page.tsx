@@ -452,7 +452,7 @@ export default function TelaInicial() {
         </aside>
 
         <section className={style.resultados}>
-          <h2>Resultados da Busca</h2>
+          <h3 className={style.buscaResultados}>Resultados da Busca</h3>
 
           {hoteisFiltrados && hoteisFiltrados.length === 0 ? (
             <p className={style.nenhumResultado}>Nenhum hotel encontrado.</p>

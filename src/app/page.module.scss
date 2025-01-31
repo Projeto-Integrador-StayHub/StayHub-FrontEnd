@@ -201,6 +201,11 @@
     border-bottom: 1px solid #ddd;
 }
 
+.buscaResultados{
+    display: flex;
+    font-size: 35px;
+    margin-left: 20px;
+}
 
 .resultados {
     width: 75%;
@@ -227,9 +232,8 @@
 
 .cardContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Ajusta automaticamente o número de colunas */
-    gap: 20px; /* Espaçamento entre os cards */
-    margin-top: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
     padding: 20px;
     justify-content: center;
     align-items: stretch;
@@ -246,7 +250,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 400px; /* Altura mínima para garantir consistência */
+    min-height: 300px; /* Altura mínima para garantir consistência */
 }
 
 .cardHotel:hover {
