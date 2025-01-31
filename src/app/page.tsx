@@ -113,29 +113,29 @@ export default function TelaInicial() {
 
   const loginHospede = async () => {
     try {
-        const response = await fetch("https://localhost:7274/api/Hospede/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password: senha,
-                twoFactorCode: null,
-                twoFactorRecoveryCode: null,
-            }),
-        });
+      const response = await fetch("https://localhost:7274/api/Hospede/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password: senha,
+          twoFactorCode: null,
+          twoFactorRecoveryCode: null,
+        }),
+      });
 
-        if (response.ok) {
-            const dadosUsuario = await response.json();
-            setIsLogged(true);
-            setErrorMessage("Login realizado com sucesso!");
-            setActiveCard(null);
-            console.log("Usuário autenticado:", dadosUsuario);
-        } else {
-            const error = await response.json();
-            setErrorMessage(error.message || "Erro ao realizar login");
-        }
+      if (response.ok) {
+        const dadosUsuario = await response.json();
+        setIsLogged(true);
+        setErrorMessage("Login realizado com sucesso!");
+        setActiveCard(null);
+        console.log("Usuário autenticado:", dadosUsuario);
+      } else {
+        const error = await response.json();
+        setErrorMessage(error.message || "Erro ao realizar login");
+      }
     } catch (error) {
       console.error("Erro na requisição de login:", error);
       setErrorMessage("Não foi possível conectar ao servidor.");
@@ -455,27 +455,46 @@ export default function TelaInicial() {
           <h2>Resultados da Busca</h2>
 
           {hoteisFiltrados && hoteisFiltrados.length === 0 ? (
-            <p className={style.nenhumResultado}>
-              Nenhum hotel encontrado.
-            </p>
+            <p className={style.nenhumResultado}>Nenhum hotel encontrado.</p>
           ) : (
-            hoteisFiltrados.map((hotel, index) => (
-              <div key={index} className={style.cardHotel} onClick={() => handleCardClick(hotel.id)} // Ao clicar no card, redireciona para página de reserva
-                style={{ cursor: "pointer" }}>
-                <h3 className={style.indisponivelNome}>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
-                <p className={style.campo}>Descrição: {hotel.descricao || "Descrição não disponível"}</p>
-                <p className={style.campo}>Preço: R$ {hotel.preco || "Não disponível"}</p>
-                <p className={style.campo}>Capacidade: {hotel.capacidadePessoas || "Não especificado"} pessoas</p>
-                <p className={style.campo}>Cidade: {hotel.cidade || "Cidade não informada"}</p>
-                <p className={style.campo}>Estado: {hotel.estado || "Estado não informado"}</p>
-                <p className={style.campo}>Endereço: {hotel.endereco || "Endereço não informado"}</p>
-                <p className={style.campo}>Comodidades: {hotel.comodidades || "Comodidades não informadas"}</p>
-                <p className={style.campo}>Disponibilidade: {hotel.disponibilidade ? "Disponível" : "Indisponível"}</p>
-                <p className={style.campo}>Dono ID: {hotel.donoId || "Não informado"}</p>
-              </div>
-            ))
+            <div className={style.cardContainer}>
+              {hoteisFiltrados.map((hotel, index) => (
+                <div
+                  key={index}
+                  className={style.cardHotel}
+                  onClick={() => handleCardClick(hotel.id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <h3 className={style.hotelTitle}>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
+                  <div className={style.campoGrid}>
+                    <p className={style.campo}>
+                      <strong>Disponibilidade:</strong>
+                      <span className={hotel.disponibilidade ? style.disponivel : style.indisponivel}>
+                        {hotel.disponibilidade ? "Disponível" : "Indisponível"}
+                      </span>
+                    </p>
+                    <p className={style.campo}><strong>Preço:</strong> R$ {hotel.preco || "Não disponível"}</p>
+                    <p className={style.campo}><strong>Capacidade:</strong> {hotel.capacidadePessoas || "Não especificado"} pessoas</p>
+                    <p className={style.campo}><strong>Localização:</strong> {hotel.cidade || "Cidade não informada"}, {hotel.estado || "Estado não informado"}</p>
+                    <p className={style.campo}><strong>Endereço:</strong> {hotel.endereco || "Endereço não informado"}</p>
+                    <p className={style.campo}><strong>Comodidades:</strong> {hotel.comodidades || "Comodidades não informadas"}</p>
+                  </div>
+                    <p className={style.descricao}><strong>Descrição:</strong> {hotel.descricao || "Descrição não disponível"}</p>
+
+
+                  {/* Botão de ação */}
+                  <button
+                    className={style.reservarButton}
+                    onClick={(e) => { e.stopPropagation(); handleCardClick(hotel.id); }}
+                  >
+                    Reservar
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </section>
+
       </div>
     </main>
   );
