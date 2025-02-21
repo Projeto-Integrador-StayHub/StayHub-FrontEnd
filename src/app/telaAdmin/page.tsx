@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import style from "../../app/telaAdmin/page.module.scss"; // Ajuste o caminho conforme necessário
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
-
-type Avaliacao = {
-    id: number;
-    comentario: string;
-};
+import AdminPainelUsuarios from "./hospede/page";
+import AdminPanel2 from "./hotelDono/page";
+import AdminPainelReserva from "./reserva/page";
+import AdminPainelQuarto from "./quarto/page";
+import AdminPainelAvaliacao from "./avaliacao/page";
 
 const AdminPanel = () => {
     const [users, setUsers] = useState<any[]>([]);
@@ -50,7 +50,7 @@ const AdminPanel = () => {
                     "Content-Type": "application/json",
                 },
             });
-    
+
             if (response.ok) {
                 const data = await response.json();
                 setUsers(data.dados);
@@ -66,7 +66,7 @@ const AdminPanel = () => {
     const handleSaveEdit = async (updatedUser: any) => {
         try {
             const response = await fetch(
-                `https://localhost:7274/api/Hospede/EditarHospede/${updatedUser.id}`, // Adicionando o ID do usuário à URL
+                `https://localhost:7274/api/Hospede/EditarHospede/${updatedUser.id}`,
                 {
                     method: "PUT",
                     headers: {
@@ -453,27 +453,24 @@ const AdminPanel = () => {
         owner.nome.toLowerCase().includes(search.toLowerCase())
     );
 
-    const filteredReservas = reserva.filter((reserva) =>
-        reserva.nome.toLowerCase().includes(search.toLowerCase())
-    );
     const handleEdit = (owner: any) => {
         setEditUser(owner);
         setIsEditing(true);
     };
 
-  const handleSaveEditDonos = (owner: any) => {
-    setEditUser(owner);
-    setIsEditing(true);
-  };
+    const handleSaveEditDonos = (owner: any) => {
+        setEditUser(owner);
+        setIsEditing(true);
+    };
 
-  const handleEditQuarto = (quarto: any) => {
-    if (!quarto) {
-      setErrorMessage("dados nao encontrados para edição");
-      return
-    }
-    // setEditQuarto(quarto);
-    setIsEditing(true);
-  };
+    const handleEditQuarto = (quarto: any) => {
+        if (!quarto) {
+            setErrorMessage("dados nao encontrados para edição");
+            return
+        }
+        // setEditQuarto(quarto);
+        setIsEditing(true);
+    };
 
     return (
         <main className={style.adminContainer}>
@@ -495,391 +492,28 @@ const AdminPanel = () => {
                 </TabList>
 
                 <TabPanel>
-                    <div className={style.searchContainer}>
-                        <input
-                            type="text"
-                            placeholder="Pesquisar por nome..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className={style.searchInput}
-                        />
-                    </div>
-
-                    {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-
-                    <table className={style.adminTable}>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>E-mail</th>
-                                <th>CPF</th>
-                                <th>Telefone</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredUsers.length > 0 ? (
-                                filteredUsers.map((user) => (
-                                    <tr className={style.containerInfo} key={user.id}>
-                                        <td >{user.nome}</td>
-                                        <td>{user.email}</td>
-                                        <td>{user.cpf}</td>
-                                        <td>{user.telefone}</td>
-                                        <td className={style.containerButtonTabela}>
-                                            <button className={style.editButton} onClick={() => handleEdit(user)}>
-                                                Editar
-                                            </button>
-                                            <button className={style.deleteButton} onClick={() => handleDelete(user.id)}>
-                                                Excluir
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    {/* <td colSpan="5">Nenhum usuário encontrado.</td> */}
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                    <AdminPainelUsuarios />
                 </TabPanel>
 
                 <TabPanel>
-                    <div className={style.searchContainer}>
-                        <input
-                            type="text"
-                            placeholder="Pesquisar por nome..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className={style.searchInput}
-                        />
-                    </div>
-
-                    {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-
-                    <table className={style.adminTable}>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>E-mail</th>
-                                <th>CPF</th>
-                                <th>Telefone</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredOwners.length > 0 ? (
-                                filteredOwners.map((owner) => (
-                                    <tr className={style.containerInfo} key={owner.id}>
-                                        <td>{owner.nome}</td>
-                                        <td>{owner.email}</td>
-                                        <td>{owner.cpf}</td>
-                                        <td>{owner.telefone}</td>
-                                        <td className={style.containerButtonTabela}>
-                                            <button
-                                                className={style.editButton}
-                                                onClick={() => handleEditOwner(owner)}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                className={style.deleteButton}
-                                                onClick={() => handleDeleteOwner(owner.id)}
-                                            >
-                                                Excluir
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    {/* <td colSpan="5">Nenhum dono encontrado.</td> */}
-                                </tr>
-                            )}
-                        </tbody>
-
-                    </table>
+                    <AdminPanel2 />
                 </TabPanel>
 
                 <TabPanel>
-                    <div className={style.searchContainer}>
-                        <input
-                            type="text"
-                            placeholder="Pesquisar por nome..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className={style.searchInput}
-                        />
-                    </div>
-
-                    {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-
-                    <table className={style.adminTable}>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Descrição</th>
-                                <th>Entrada</th>
-                                <th>Saída</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredReservas.length > 0 ? (
-                                filteredReservas.map((reserva) => (
-                                    <tr className={style.containerInfo} key={reserva.id}>
-                                        <td>{reserva.nomeQuarto}</td>
-                                        <td>{reserva.descricao}</td>
-                                        <td>{reserva.entrada}</td>
-                                        <td>{reserva.saida}</td>
-                                        <td className={style.containerButtonTabela}>
-                                            <button
-                                                className={style.editButton}
-                                                onClick={() => handleEditReservas(reserva)}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                className={style.deleteButton}
-                                                onClick={() => handleDeleteReserva(reserva.id)} // Pode ser alterado para o método correto
-                                            >
-                                                Excluir
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    {/* <td colSpan="5">Nenhuma reserva encontrada.</td> */}
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                    <AdminPainelReserva />
+                </TabPanel>
+                <TabPanel>
+                    <AdminPainelQuarto/>
                 </TabPanel>
 
                 <TabPanel>
-                    <div className={style.searchContainer}>
-                        <input
-                            type="text"
-                            placeholder="Pesquisar por nome do quarto..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className={style.searchInput}
-                        />
-                    </div>
-
-                    {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-
-                    <table className={style.adminTable}>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Descrição</th>
-                                <th>Preço</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rooms.length > 0 ? (
-                                rooms.map((room) => (
-                                    <tr key={room.id}>
-                                        <td>{room.nome}</td>
-                                        <td>{room.descricao}</td>
-                                        <td>{room.preco}</td>
-                                        <td>
-                                            <button
-                                                className={style.editButton}
-                                                onClick={() => {
-                                                    setEditRoom(room);
-                                                    setIsEditingRoom(true);
-                                                }}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                className={style.deleteButton}
-                                                onClick={() => handleDeleteRoom(room.id)}
-                                            >
-                                                Excluir
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    {/* <td colSpan="4">Nenhum quarto encontrado.</td> */}
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                <AdminPainelAvaliacao/>
                 </TabPanel>
-
-                <TabPanel>
-                    <div className={style.searchContainer}>
-                        <input
-                            type="text"
-                            placeholder="Pesquisar por descrição..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className={style.searchInput}
-                        />
-                    </div>
-
-                    {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-
-                    {/* <table className={style.adminTable}>
-                        <thead>
-                            <tr>
-                                <th>Avaliação</th>
-                                <th>Descrição</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead> */}
-                        {/* <tbody>
-                            {avaliacoes.length > 0 ? (
-                                avaliacoes.map((avaliacao) => (
-                                    <tr key={avaliacao.id}> */}
-                                        {/* <td>{avaliacao.avaliacao}</td>
-                                        <td>{avaliacao.descricao}</td> */}
-                                        {/* <td>
-                                            <button
-                                                className={style.editButton}
-                                                onClick={() => {
-                                                    setEditAvaliacao(avaliacao);
-                                                    setIsEditingAvaliacao(true);
-                                                }}
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                className={style.deleteButton}
-                                                // onClick={() => handleDeleteAvaliacao(avaliacao.id)}
-                                            > */}
-                                                {/* Excluir
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : ( */}
-                                {/* <tr> */}
-                                    {/* <td colSpan="3">Nenhuma avaliação encontrada.</td> */}
-                                {/* </tr> */}
-                            {/* )} */}
-                        {/* </tbody> */}
-                    {/* </table> */}
-                </TabPanel>
-
             </Tabs>
-
-            {isEditing && (
-                <div>
-                    {editUser && (
-                        <EditModal
-                            user={editUser}
-                            onSave={handleSaveEdit}
-                            onCancel={() => setIsEditing(false)}
-                        />
-                    )}
-                    {editReservas && (
-                        <EditReservaModal
-                            reserva={editReservas}
-                            onSave={handleSaveReservasEdit}
-                            onCancel={() => setIsEditing(false)}
-                        />
-                    )}
-                    {isEditingRoom && (
-                        <EditRoomModal
-                            room={editRoom}
-                            onSave={handleSaveRoomEdit}
-                            onCancel={() => setIsEditingRoom(false)}
-                        />
-                    )}
-
-                    {isEditingAvaliacao && (
-                        <EditAvaliacaoModal
-                            avaliacao={editAvaliacao}
-                            // onSave={handleSaveAvaliacaoEdit}
-                            onCancel={() => {
-                                setIsEditingAvaliacao(false);
-                                setEditAvaliacao(null);
-                            }}
-                        />
-                    )}
-
-                </div>
-            )}
         </main >
     );
 };
 
-
-const EditModal = ({ user, onSave, onCancel }: any) => {
-  const [name, setName] = useState(user.nome);
-  const [email, setEmail] = useState(user.email);
-  const [cpf, setCpf] = useState(user.cpf);
-  const [telefone, setTelefone] = useState(user.telefone);
-  const [nascimento, setNascimento] = useState(user.nascimento);
-  const [senha, setSenha] = useState(user.senha);
-  const [endereco, setendereco] = useState(user.endereco);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSave({ ...user, nome: name, email, cpf, telefone, nascimento, senha, endereco });
-    };
-
-    return (
-        <div className={style.modal}>
-            <div className={style.modalContent}>
-                <h2>Editar Perfil</h2>
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label>Nome:</label>
-                        <input value={name} onChange={(e) => setName(e.target.value)} />
-                    </div>
-                    <div>
-                        <label>E-mail:</label>
-                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                    </div>
-                    <div>
-                        <label>CPF:</label>
-                        <input value={cpf} onChange={(e) => setCpf(e.target.value)} />
-                    </div>
-                    <div>
-                        <label>Telefone:</label>
-                        <input value={telefone} onChange={(e) => setTelefone(e.target.value)} />
-                    </div>
-                    <div>
-                        <label>Endereço:</label>
-                        <input value={endereco} onChange={(e) => setendereco(e.target.value)} />
-                    </div>
-                    <div>
-                        <label>Data de Nascimento:</label>
-                        <input
-                            type="date"
-                            value={nascimento}
-                            onChange={(e) => setNascimento(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label>Senha:</label>
-                        <input
-                            type="password"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                        />
-                    </div>
-
-                    <button type="submit" className={style.saveButton}>
-                        Salvar
-                    </button>
-                    <button type="button" onClick={onCancel} className={style.cancelButton}>
-                        Cancelar
-                    </button>
-                </form>
-            </div>
-        </div>
-    );
-};
 const EditReservaModal = ({ reserva, onSave, onCancel }: any) => {
     const [descricao, setDescricao] = useState(reserva.descricao);
     const [entrada, setEntrada] = useState(reserva.entrada);
