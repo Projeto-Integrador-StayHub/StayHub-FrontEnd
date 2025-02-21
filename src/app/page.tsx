@@ -12,7 +12,6 @@ export default function TelaInicial() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeCard, setActiveCard] = useState<"login" | "cadastro" | null>(null);
 
-  // Filtros
   const [nomeQuarto, setNomeQuarto] = useState("");
   const [precoMinimo, setPrecoMinimo] = useState<number | null>(null);
   const [precoMaximo, setPrecoMaximo] = useState<number | null>(null);
@@ -24,7 +23,6 @@ export default function TelaInicial() {
   const [isLogged, setIsLogged] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Dados de cadastro/login
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -95,7 +93,6 @@ export default function TelaInicial() {
     }
   };
 
-  // Carrega todos os hotéis inicialmente
   useEffect(() => {
     const nenhumFiltroAplicado =
       !nomeQuarto.trim() &&
@@ -106,36 +103,35 @@ export default function TelaInicial() {
       !estado.trim();
 
     if (nenhumFiltroAplicado) {
-      // Se todos os filtros foram removidos, carrega todos os hotéis novamente
       buscarHoteis();
     }
   }, [nomeQuarto, precoMinimo, precoMaximo, capacidadePessoas, cidade, estado]);
 
   const loginHospede = async () => {
     try {
-        const response = await fetch("https://localhost:7274/api/Hospede/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password: senha,
-                twoFactorCode: null,
-                twoFactorRecoveryCode: null,
-            }),
-        });
+      const response = await fetch("https://localhost:7274/api/Hospede/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password: senha,
+          twoFactorCode: null,
+          twoFactorRecoveryCode: null,
+        }),
+      });
 
-        if (response.ok) {
-            const dadosUsuario = await response.json();
-            setIsLogged(true);
-            setErrorMessage("Login realizado com sucesso!");
-            setActiveCard(null);
-            console.log("Usuário autenticado:", dadosUsuario);
-        } else {
-            const error = await response.json();
-            setErrorMessage(error.message || "Erro ao realizar login");
-        }
+      if (response.ok) {
+        const dadosUsuario = await response.json();
+        setIsLogged(true);
+        setErrorMessage("Login realizado com sucesso!");
+        setActiveCard(null);
+        console.log("Usuário autenticado:", dadosUsuario);
+      } else {
+        const error = await response.json();
+        setErrorMessage(error.message || "Erro ao realizar login");
+      }
     } catch (error) {
       console.error("Erro na requisição de login:", error);
       setErrorMessage("Não foi possível conectar ao servidor.");
@@ -208,7 +204,6 @@ export default function TelaInicial() {
   };
 
   const handleFiltrar = () => {
-    // Verifica se nenhum filtro foi preenchido
     if (
       !nomeQuarto.trim() &&
       (precoMinimo === null || isNaN(precoMinimo)) &&
@@ -217,10 +212,8 @@ export default function TelaInicial() {
       !cidade.trim() &&
       !estado.trim()
     ) {
-      // Nenhum filtro preenchido, busca todos os hotéis
       buscarHoteis();
     } else {
-      // Algum filtro foi preenchido, aplica filtros
       aplicarFiltros();
     }
   };
@@ -246,7 +239,6 @@ export default function TelaInicial() {
 
   return (
     <main>
-      {/* Container Header */}
       <div id={style.containerHeader}>
         <div className={style.header}>
           <div className={style.logo}>
@@ -290,7 +282,7 @@ export default function TelaInicial() {
                   {isLogged ? (
                     <>
                       <div className={style.menuItem} onClick={() => router.push("/telaPerfil")}>Meu Perfil</div>
-                      <div className={style.menuItem}>Minhas Reservas</div>
+                      <div className={style.menuItem} onClick={() => router.push("/MinhasReservas")}>Minhas Reservas</div>
                       <div className={style.menuItem} onClick={logout}>Sair</div>
                     </>
                   ) : (
@@ -382,9 +374,7 @@ export default function TelaInicial() {
         </div>
       </div>
 
-      {/* Corpo da Página */}
       <div className={style.containerBody}>
-        {/* Filtros Laterais */}
         <aside className={style.filtros}>
           <h2>Filtros</h2>
 
@@ -451,31 +441,70 @@ export default function TelaInicial() {
           <button onClick={handleFiltrar}>Filtrar</button>
         </aside>
 
-        <section className={style.resultados}>
-          <h2>Resultados da Busca</h2>
+        <section className={style.searchResults}>
+          <h3 className={style.resultsTitle}>Resultados da Busca</h3>
 
           {hoteisFiltrados && hoteisFiltrados.length === 0 ? (
-            <p className={style.nenhumResultado}>
-              Nenhum hotel encontrado.
-            </p>
+            <p className={style.noResults}>Nenhum hotel encontrado.</p>
           ) : (
-            hoteisFiltrados.map((hotel, index) => (
-              <div key={index} className={style.cardHotel} onClick={() => handleCardClick(hotel.id)} // Ao clicar no card, redireciona para página de reserva
-                style={{ cursor: "pointer" }}>
-                <h3 className={style.indisponivelNome}>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
-                <p className={style.campo}>Descrição: {hotel.descricao || "Descrição não disponível"}</p>
-                <p className={style.campo}>Preço: R$ {hotel.preco || "Não disponível"}</p>
-                <p className={style.campo}>Capacidade: {hotel.capacidadePessoas || "Não especificado"} pessoas</p>
-                <p className={style.campo}>Cidade: {hotel.cidade || "Cidade não informada"}</p>
-                <p className={style.campo}>Estado: {hotel.estado || "Estado não informado"}</p>
-                <p className={style.campo}>Endereço: {hotel.endereco || "Endereço não informado"}</p>
-                <p className={style.campo}>Comodidades: {hotel.comodidades || "Comodidades não informadas"}</p>
-                <p className={style.campo}>Disponibilidade: {hotel.disponibilidade ? "Disponível" : "Indisponível"}</p>
-                <p className={style.campo}>Dono ID: {hotel.donoId || "Não informado"}</p>
-              </div>
-            ))
+            <div className={style.cardsGrid}>
+              {hoteisFiltrados.map((hotel, index) => (
+                <div key={index} className={style.hotelCard}>
+                  <div className={style.cardTop}>
+                    <h3>{hotel.nomeQuarto || "Nome do Quarto não disponível"}</h3>
+                  </div>
+
+                  <div className={style.cardContent}>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Preço:</span>
+                      <span className={style.itemData}>R$ {hotel.preco || "Não disponível"}</span>
+                    </div>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Capacidade:</span>
+                      <span className={style.itemData}>{hotel.capacidadePessoas || "Não especificado"} pessoas</span>
+                    </div>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Cidade:</span>
+                      <span className={style.itemData}>{hotel.cidade || "Cidade não informada"}</span>
+                    </div>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Estado:</span>
+                      <span className={style.itemData}>{hotel.estado || "Estado não informado"}</span>
+                    </div>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Endereço:</span>
+                      <span className={style.itemData}>{hotel.endereco || "Endereço não informado"}</span>
+                    </div>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Comodidades:</span>
+                      <span className={style.itemData}>{hotel.comodidades || "Comodidades não informadas"}</span>
+                    </div>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Disponibilidade:</span>
+                      <span className={style.itemData}>{hotel.disponibilidade ? "Disponível" : "Indisponível"}</span>
+                    </div>
+                    <div className={style.cardItem}>
+                      <span className={style.itemLabel}>Descrição:</span>
+                      <span className={style.itemData}>{hotel.descricao || "Descrição não disponível"}</span>
+                    </div>
+                  </div>
+
+                  <div className={style.cardBottom}>
+                    <button
+                      className={style.reserveButton}
+                      onClick={() => handleCardClick(hotel.id)}
+                    >
+                      Reserva
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </section>
+
+
+
       </div>
     </main>
   );
